@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["openapi", "info"],
+  "properties": {
+    "openapi": {
+      "type": "string",
+      "pattern": "^3\\.2\\."
+    },
+    "info": {
+      "type": "object",
+      "required": ["title", "version"],
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "version": { "type": "string" },
+        "summary": { "type": "string" }
+      }
+    },
+    "paths": {
+      "type": "object"
+    },
+    "webhooks": {
+      "type": "object"
+    },
+    "components": {
+      "type": "object",
+      "properties": {
+        "schemas": { "type": "object" },
+        "responses": { "type": "object" },
+        "parameters": { "type": "object" },
+        "examples": { "type": "object" },
+        "requestBodies": { "type": "object" },
+        "headers": { "type": "object" },
+        "securitySchemes": { "type": "object" },
+        "links": { "type": "object" },
+        "callbacks": { "type": "object" },
+        "pathItems": { "type": "object" }
+      }
+    },
+    "servers": {
+      "type": "array"
+    },
+    "security": {
+      "type": "array"
+    },
+    "tags": {
+      "type": "array"
+    },
+    "externalDocs": {
+      "type": "object"
+    }
+  }
+}

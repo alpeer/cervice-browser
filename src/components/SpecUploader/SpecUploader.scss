@@ -1,0 +1,32 @@
+.spec-uploader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+
+  &__content {
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+
+    h2 {
+      margin-bottom: 16px;
+      color: #333;
+    }
+
+    p {
+      margin-bottom: 24px;
+      color: #666;
+    }
+  }
+
+  &__error {
+    margin-top: 16px;
+    padding: 12px;
+    background-color: #ffebee;
+    border: 1px solid #ef5350;
+    border-radius: 4px;
+    color: #c62828;
+  }
+}
