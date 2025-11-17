@@ -1,0 +1,1227 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Backoffice Example API",
+    "description": "\n    Complete e-commerce platform API with user management and order processing.\n    \n    This API provides:\n    - User registration, authentication, and profile management\n    - Order creation, tracking, and status management\n    - Administrative functions and reporting\n    \n    All endpoints support standard HTTP status codes and include comprehensive error handling.\n  ",
+    "version": "2.1.0",
+    "contact": {
+      "name": "CERTIFICATUM SİBER GÜVENLİK TEKNOLOJİLERİ A.Ş.",
+      "email": "iletisim@certificatum.com.tr"
+    },
+    "license": {
+      "name": "Certificatum Proprietary License"
+    },
+    "termsOfService": "https://example.com/terms"
+  },
+  "servers": [
+    {
+      "url": "https://api.ecommerce.example.com/v2",
+      "description": "Production server"
+    },
+    {
+      "url": "https://staging-api.ecommerce.example.com/v2",
+      "description": "Staging server"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/order": {
+      "get": {
+        "operationId": "getAllOrders",
+        "summary": "Get allorders",
+        "description": "Retrieves detailed information about the specified allorders",
+        "tags": [
+          "order"
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "processing",
+                "shipped",
+                "delivered",
+                "cancelled"
+              ]
+            },
+            "description": "status parameter"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "description": "userId parameter"
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "startDate parameter"
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "endDate parameter"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "limit parameter"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "description": "offset parameter"
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "createdAt",
+                "total",
+                "status"
+              ],
+              "default": "createdAt"
+            },
+            "description": "sortBy parameter"
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            },
+            "description": "sortOrder parameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllOrdersResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Server-Time": {
+                "description": "Server processing time in milliseconds",
+                "schema": {
+                  "type": "string",
+                  "example": "45.23ms"
+                }
+              },
+              "X-Cervice-Request-Id": {
+                "description": "Unique request identifier for tracing",
+                "schema": {
+                  "type": "string",
+                  "example": "abc123xyz789"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/order/{orderId}": {
+      "get": {
+        "operationId": "getOrderById",
+        "summary": "Get orderbyid",
+        "description": "Retrieves detailed information about the specified orderbyid",
+        "tags": [
+          "order"
+        ],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 789
+            },
+            "description": "OrderId identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetOrderByIdResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Server-Time": {
+                "description": "Server processing time in milliseconds",
+                "schema": {
+                  "type": "string",
+                  "example": "45.23ms"
+                }
+              },
+              "X-Cervice-Request-Id": {
+                "description": "Unique request identifier for tracing",
+                "schema": {
+                  "type": "string",
+                  "example": "abc123xyz789"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateOrder",
+        "summary": "Update order",
+        "description": "Partially updates the specified order",
+        "tags": [
+          "order"
+        ],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 789
+            },
+            "description": "OrderId identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateOrderResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Server-Time": {
+                "description": "Server processing time in milliseconds",
+                "schema": {
+                  "type": "string",
+                  "example": "45.23ms"
+                }
+              },
+              "X-Cervice-Request-Id": {
+                "description": "Unique request identifier for tracing",
+                "schema": {
+                  "type": "string",
+                  "example": "abc123xyz789"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrderRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrderRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/order/{orderId}/cancel": {
+      "post": {
+        "operationId": "cancelOrder",
+        "summary": "Create cancelorder",
+        "description": "Creates a new cancelorder with the provided data",
+        "tags": [
+          "order"
+        ],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 789
+            },
+            "description": "OrderId identifier"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancelOrderResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Server-Time": {
+                "description": "Server processing time in milliseconds",
+                "schema": {
+                  "type": "string",
+                  "example": "45.23ms"
+                }
+              },
+              "X-Cervice-Request-Id": {
+                "description": "Unique request identifier for tracing",
+                "schema": {
+                  "type": "string",
+                  "example": "abc123xyz789"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelOrderRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelOrderRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/order/stats": {
+      "get": {
+        "operationId": "getOrderStats",
+        "summary": "Get orderstats",
+        "description": "Retrieves detailed information about the specified orderstats",
+        "tags": [
+          "order"
+        ],
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "startDate parameter"
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "endDate parameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetOrderStatsResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Server-Time": {
+                "description": "Server processing time in milliseconds",
+                "schema": {
+                  "type": "string",
+                  "example": "45.23ms"
+                }
+              },
+              "X-Cervice-Request-Id": {
+                "description": "Unique request identifier for tracing",
+                "schema": {
+                  "type": "string",
+                  "example": "abc123xyz789"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/order/{orderId}/assign-warehouse": {
+      "post": {
+        "operationId": "assignOrderToWarehouse",
+        "summary": "Create assignordertowarehouse",
+        "description": "Creates a new assignordertowarehouse with the provided data",
+        "tags": [
+          "order"
+        ],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 789
+            },
+            "description": "OrderId identifier"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignOrderToWarehouseResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Server-Time": {
+                "description": "Server processing time in milliseconds",
+                "schema": {
+                  "type": "string",
+                  "example": "45.23ms"
+                }
+              },
+              "X-Cervice-Request-Id": {
+                "description": "Unique request identifier for tracing",
+                "schema": {
+                  "type": "string",
+                  "example": "abc123xyz789"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignOrderToWarehouseRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignOrderToWarehouseRequest"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GetAllOrdersRequest": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "processing",
+              "shipped",
+              "delivered",
+              "cancelled"
+            ]
+          },
+          "userId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0
+          },
+          "sortBy": {
+            "type": "string",
+            "enum": [
+              "createdAt",
+              "total",
+              "status"
+            ],
+            "default": "createdAt"
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "default": "desc"
+          }
+        }
+      },
+      "GetOrderByIdRequest": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "orderId"
+        ]
+      },
+      "UpdateOrderRequest": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "processing",
+              "shipped",
+              "delivered",
+              "cancelled"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          },
+          "trackingNumber": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "orderId"
+        ]
+      },
+      "CancelOrderRequest": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "orderId",
+          "reason"
+        ]
+      },
+      "GetOrderStatsRequest": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AssignOrderToWarehouseRequest": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "warehouseId": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "orderId",
+          "warehouseId"
+        ]
+      },
+      "GetAllOrdersResponse": {
+        "type": "object",
+        "properties": {
+          "orders": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "userId": {
+                  "type": "integer"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "productId": {
+                        "type": "integer"
+                      },
+                      "quantity": {
+                        "type": "integer"
+                      },
+                      "price": {
+                        "type": "number"
+                      },
+                      "subtotal": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "total": {
+                  "type": "number"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "notes": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          },
+          "total": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "orders",
+          "total",
+          "limit",
+          "offset",
+          "hasMore"
+        ]
+      },
+      "GetOrderByIdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "userId": {
+            "type": "integer"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "productId": {
+                  "type": "integer"
+                },
+                "quantity": {
+                  "type": "integer"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "subtotal": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "shippingAddress": {
+            "type": "object",
+            "properties": {
+              "street": {
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string"
+              },
+              "zipCode": {
+                "type": "string"
+              },
+              "country": {
+                "type": "string"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "items",
+          "total",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UpdateOrderResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "userId": {
+            "type": "integer"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "productId": {
+                  "type": "integer"
+                },
+                "quantity": {
+                  "type": "integer"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "subtotal": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "trackingNumber": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "items",
+          "total",
+          "status",
+          "updatedAt"
+        ]
+      },
+      "CancelOrderResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "userId": {
+            "type": "integer"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "productId": {
+                  "type": "integer"
+                },
+                "quantity": {
+                  "type": "integer"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "subtotal": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "cancelled"
+            ]
+          },
+          "cancellationReason": {
+            "type": "string"
+          },
+          "cancelledAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "items",
+          "total",
+          "status",
+          "cancellationReason",
+          "cancelledAt",
+          "updatedAt"
+        ]
+      },
+      "GetOrderStatsResponse": {
+        "type": "object",
+        "properties": {
+          "totalOrders": {
+            "type": "integer"
+          },
+          "totalRevenue": {
+            "type": "number"
+          },
+          "averageOrderValue": {
+            "type": "number"
+          },
+          "statusBreakdown": {
+            "type": "object",
+            "properties": {
+              "pending": {
+                "type": "integer"
+              },
+              "processing": {
+                "type": "integer"
+              },
+              "shipped": {
+                "type": "integer"
+              },
+              "delivered": {
+                "type": "integer"
+              },
+              "cancelled": {
+                "type": "integer"
+              }
+            }
+          },
+          "period": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "end": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        },
+        "required": [
+          "totalOrders",
+          "totalRevenue",
+          "averageOrderValue",
+          "statusBreakdown",
+          "period"
+        ]
+      },
+      "AssignOrderToWarehouseResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "userId": {
+            "type": "integer"
+          },
+          "warehouseId": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "assignedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "warehouseId",
+          "status",
+          "assignedAt",
+          "updatedAt"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token obtained from /auth/login endpoint"
+      },
+      "apiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API key for service-to-service communication"
+      }
+    },
+    "responses": {
+      "ValidationError": {
+        "description": "Request validation failed",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "validation_failed"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Request validation failed"
+                },
+                "metadata": {
+                  "type": "object",
+                  "description": "Detailed validation error information",
+                  "additionalProperties": true
+                }
+              },
+              "required": [
+                "type",
+                "message"
+              ]
+            }
+          }
+        }
+      },
+      "UnauthorizedError": {
+        "description": "Authentication required or invalid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "unauthorized"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Authentication required"
+                }
+              },
+              "required": [
+                "type",
+                "message"
+              ]
+            }
+          }
+        }
+      },
+      "NotFoundError": {
+        "description": "Requested resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "not_found"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Resource not found"
+                }
+              },
+              "required": [
+                "type",
+                "message"
+              ]
+            }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "internal_error"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "An internal server error occurred"
+                }
+              },
+              "required": [
+                "type",
+                "message"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "LimitParam": {
+        "name": "limit",
+        "in": "query",
+        "description": "Maximum number of items to return",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        }
+      },
+      "OffsetParam": {
+        "name": "offset",
+        "in": "query",
+        "description": "Number of items to skip",
+        "schema": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "SortParam": {
+        "name": "sort",
+        "in": "query",
+        "description": "Sort field and direction (e.g., \"name:asc\", \"createdAt:desc\")",
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*:(asc|desc)$"
+        }
+      },
+      "SearchParam": {
+        "name": "search",
+        "in": "query",
+        "description": "Search term for filtering results",
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "health",
+      "description": "System health and monitoring endpoints"
+    },
+    {
+      "name": "user",
+      "description": "User management operations",
+      "externalDocs": {
+        "description": "User management guide",
+        "url": "https://docs.example.com/users"
+      }
+    },
+    {
+      "name": "order",
+      "description": "Order processing and management",
+      "externalDocs": {
+        "description": "Order processing guide",
+        "url": "https://docs.example.com/orders"
+      }
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    },
+    {
+      "apiKey": []
+    }
+  ]
+}
