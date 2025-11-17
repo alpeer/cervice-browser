@@ -1,7 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { List, ListItemButton, ListItemText } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { List, ListItemButton, ListItemText, Collapse } from '@mui/material';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import { useSpecState } from '@/hooks/useSpecState';
+import { getSchemas, getPaths, getWebhooks, getDomainModels } from '@/utils/specUtils';
 import './Sidebar.scss';
 
 const menuItems = [
@@ -11,12 +14,42 @@ const menuItems = [
   { id: 'entities', label: 'Entities' },
 ];
 
-export default function Sidebar({ onSelect }) {
-  const [selected, setSelected] = useState('endpoints');
+export default function Sidebar() {
+  const { spec, isSwagger, selectedView, selectedItem, setSelectedView, setSelectedItem } = useSpecState();
+  const [openSection, setOpenSection] = useState('endpoints');
+  const [level2Items, setLevel2Items] = useState([]);
 
-  const handleSelect = (id) => {
-    setSelected(id);
-    onSelect(id);
+  // Extract level 2 items based on selected section
+  useEffect(() => {
+    if (!spec) return;
+
+    let items = [];
+
+    switch (openSection) {
+      case 'endpoints':
+        items = extractEndpoints(spec);
+        break;
+      case 'objects':
+        items = extractObjects(spec, isSwagger);
+        break;
+      case 'webhooks':
+        items = extractWebhooks(spec, isSwagger);
+        break;
+      case 'entities':
+        items = []; // Empty for now as per requirements
+        break;
+    }
+
+    setLevel2Items(items);
+  }, [spec, openSection, isSwagger]);
+
+  const handleSectionClick = (section) => {
+    setOpenSection(section);
+    setSelectedView(section);
+  };
+
+  const handleItemClick = (item) => {
+    setSelectedItem(item);
   };
 
   return (
@@ -24,18 +57,98 @@ export default function Sidebar({ onSelect }) {
       <div className="sidebar__header">
         <h3>OpenAPI Viewer</h3>
       </div>
-      <List>
-        {menuItems.map((item) => (
-          <ListItemButton
-            key={item.id}
-            selected={selected === item.id}
-            onClick={() => handleSelect(item.id)}
-            className="sidebar__item"
-          >
-            <ListItemText primary={item.label} />
-          </ListItemButton>
+      <List className="sidebar__list">
+        {menuItems.map((menuItem) => (
+          <div key={menuItem.id}>
+            <ListItemButton
+              onClick={() => handleSectionClick(menuItem.id)}
+              className={`sidebar__item ${openSection === menuItem.id ? 'sidebar__item--active' : ''}`}
+            >
+              <ListItemText primary={menuItem.label} />
+              {openSection === menuItem.id ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+
+            <Collapse in={openSection === menuItem.id} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding className="sidebar__submenu">
+                {level2Items.length === 0 && openSection === menuItem.id && (
+                  <div className="sidebar__empty">
+                    {menuItem.id === 'entities' ? 'No entities defined' : 'No items found'}
+                  </div>
+                )}
+                {level2Items.map((item, idx) => (
+                  <ListItemButton
+                    key={idx}
+                    className={`sidebar__subitem ${selectedItem?.id === item.id ? 'sidebar__subitem--selected' : ''}`}
+                    onClick={() => handleItemClick(item)}
+                  >
+                    <ListItemText
+                      primary={item.label}
+                      secondary={item.subtitle}
+                      primaryTypographyProps={{ className: 'sidebar__subitem-label' }}
+                      secondaryTypographyProps={{ className: 'sidebar__subitem-subtitle' }}
+                    />
+                  </ListItemButton>
+                ))}
+              </List>
+            </Collapse>
+          </div>
         ))}
       </List>
     </nav>
   );
+}
+
+/**
+ * Extract endpoints from spec
+ */
+function extractEndpoints(spec) {
+  const paths = getPaths(spec);
+  const endpoints = [];
+
+  Object.entries(paths).forEach(([path, methods]) => {
+    Object.entries(methods).forEach(([method, config]) => {
+      const httpMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head', 'trace'];
+      if (!httpMethods.includes(method.toLowerCase())) return;
+
+      endpoints.push({
+        id: `${method.toUpperCase()}_${path}`,
+        label: path,
+        subtitle: method.toUpperCase(),
+        path,
+        method: method.toUpperCase(),
+        config,
+      });
+    });
+  });
+
+  return endpoints;
+}
+
+/**
+ * Extract objects (domain models) from spec
+ */
+function extractObjects(spec, isSwagger) {
+  const allSchemas = getSchemas(spec, isSwagger);
+  const domainModels = getDomainModels(allSchemas);
+
+  return Object.entries(domainModels).map(([name, schema]) => ({
+    id: name,
+    label: name,
+    subtitle: schema.type || 'object',
+    schema,
+  }));
+}
+
+/**
+ * Extract webhooks from spec
+ */
+function extractWebhooks(spec, isSwagger) {
+  const webhooks = getWebhooks(spec, isSwagger);
+
+  return Object.entries(webhooks).map(([name, config]) => ({
+    id: name,
+    label: name,
+    subtitle: 'webhook',
+    config,
+  }));
 }

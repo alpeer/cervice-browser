@@ -1,19 +1,17 @@
 'use client';
 
-import { useState } from 'react';
 import Sidebar from '@/components/Sidebar/Sidebar';
 import SpecUploader from '@/components/SpecUploader/SpecUploader';
-import EndpointsList from '@/components/EndpointsList/EndpointsList';
-import ObjectsList from '@/components/ObjectsList/ObjectsList';
-import WebhooksList from '@/components/WebhooksList/WebhooksList';
+import EndpointDetail from '@/components/EndpointDetail/EndpointDetail';
+import ObjectDetail from '@/components/ObjectDetail/ObjectDetail';
+import WebhookDetail from '@/components/WebhookDetail/WebhookDetail';
 import EntitiesList from '@/components/EntitiesList/EntitiesList';
 import { useSpecState } from '@/hooks/useSpecState';
 import Button from '@/ui/Button/Button';
 import './page.scss';
 
 export default function Home() {
-  const [activeView, setActiveView] = useState('endpoints');
-  const { spec, version, schemaVersion, isValid, errors, clearSpec } = useSpecState();
+  const { spec, version, schemaVersion, isSwagger, isValid, errors, selectedView, selectedItem, clearSpec } = useSpecState();
 
   const renderContent = () => {
     if (!spec) {
@@ -39,15 +37,32 @@ export default function Home() {
       );
     }
 
-    switch (activeView) {
+    // No item selected - show empty state
+    if (!selectedItem && selectedView !== 'entities') {
+      return (
+        <div className="empty-state">
+          <div className="empty-state__content">
+            <h2>Select an item from the sidebar</h2>
+            <p>Choose an endpoint, object, or webhook to view its details</p>
+          </div>
+        </div>
+      );
+    }
+
+    // Show detail view based on selected item
+    switch (selectedView) {
       case 'endpoints':
-        return <EndpointsList spec={spec} />;
+        return selectedItem ? <EndpointDetail endpoint={selectedItem} spec={spec} isSwagger={isSwagger} /> : null;
+
       case 'objects':
-        return <ObjectsList spec={spec} />;
+        return selectedItem ? <ObjectDetail object={selectedItem} /> : null;
+
       case 'webhooks':
-        return <WebhooksList spec={spec} />;
+        return selectedItem ? <WebhookDetail webhook={selectedItem} /> : null;
+
       case 'entities':
-        return <EntitiesList spec={spec} />;
+        return <EntitiesList />;
+
       default:
         return null;
     }
@@ -55,14 +70,15 @@ export default function Home() {
 
   return (
     <div className="app-container">
-      {spec && isValid && <Sidebar onSelect={setActiveView} />}
+      {spec && isValid && <Sidebar />}
       <main className="content">
         {spec && isValid && (
           <div className="content__header">
             <div className="spec-info">
               <h1>{spec.info?.title || 'OpenAPI Specification'}</h1>
               <p className="spec-info__version">
-                OpenAPI {version} (validated against {schemaVersion})
+                {isSwagger ? 'Swagger' : 'OpenAPI'} {version}
+                {schemaVersion && version !== schemaVersion && ` (validated against ${schemaVersion})`}
               </p>
               {spec.info?.description && (
                 <p className="spec-info__description">{spec.info.description}</p>

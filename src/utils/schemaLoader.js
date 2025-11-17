@@ -1,18 +1,23 @@
 /**
- * Dynamically load OpenAPI JSON schema for validation
- * @param {string} version - Schema version (e.g., "3.0.3", "3.1.0")
+ * Dynamically load OpenAPI/Swagger JSON schema for validation
+ * @param {string} version - Schema version (e.g., "2.0", "3.0.3", "3.1.0")
  * @returns {Promise<Object>} JSON Schema object
  */
 export async function loadSchema(version) {
   try {
-    // Dynamic import based on version
-    const schema = await import(
-      `@/lib/validators/openapi-${version}-schema.json`
-    );
+    let schema;
+    // Load Swagger 2.0 schema
+    if (version === '2.0') {
+      schema = await import(`@/lib/validators/swagger-${version}-schema.json`);
+    }
+    // Load OpenAPI 3.x schema
+    else {
+      schema = await import(`@/lib/validators/openapi-${version}-schema.json`);
+    }
     return schema.default || schema;
   } catch (error) {
     throw new Error(
-      `Failed to load schema for OpenAPI ${version}: ${error.message}`
+      `Failed to load schema for version ${version}: ${error.message}`
     );
   }
 }

@@ -32,6 +32,7 @@ export default function SpecUploader() {
           parsedSpec,
           validation.version,
           validation.schemaVersion,
+          validation.isSwagger || false,
           true,
           []
         );
@@ -40,6 +41,7 @@ export default function SpecUploader() {
           parsedSpec,
           validation.version,
           validation.schemaVersion,
+          validation.isSwagger || false,
           false,
           validation.errors
         );

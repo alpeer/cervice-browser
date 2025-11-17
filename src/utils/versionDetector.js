@@ -1,10 +1,12 @@
 /**
- * Get all available OpenAPI schema versions
- * @returns {Promise<string[]>} Array of supported versions (e.g., ['3.0.3', '3.1.0', '3.2.0'])
+ * Get all available OpenAPI/Swagger schema versions
+ * Dynamically scans the validators directory for available schemas
+ * @returns {string[]} Array of supported versions (e.g., ['2.0', '3.0.3', '3.1.0', '3.2.0'])
  */
 import fs from "fs"
 const versions = fs.readdirSync("./src/lib/validators").map(i => i.match(/\d+\.(\d+\.)?\d+/)[0])
 export const getAvailableVersions = () => versions
+
 /**
  * Find the best matching schema version for a given OpenAPI spec version
  * @param {string} specVersion - Version from spec.openapi (e.g., "3.1.0", "3.2.1")
@@ -31,45 +33,61 @@ export function findBestMatch(specVersion) {
 }
 
 /**
- * Detect and validate OpenAPI version from spec
- * @param {Object} spec - Parsed OpenAPI specification
- * @returns {Promise<{version: string, schemaVersion: string}>}
+ * Detect and validate OpenAPI/Swagger version from spec
+ * @param {Object} spec - Parsed OpenAPI/Swagger specification
+ * @returns {Promise<{version: string, schemaVersion: string, isSwagger: boolean}>}
  * @throws {Error} If version is unsupported or invalid
  */
 export async function detectVersion(spec) {
-  if (!(spec.openapi || spec.swagger)) {
-    throw new Error('Invalid OpenAPI spec: missing "openapi" field')
+  let specVersion;
+  let isSwagger = false;
+
+  // Check for Swagger 2.0
+  if (spec.swagger) {
+    specVersion = spec.swagger;
+    isSwagger = true;
+
+    // Validate Swagger version format (2.0)
+    if (specVersion !== '2.0') {
+      throw new Error(`Unsupported Swagger version: ${specVersion}. Only Swagger 2.0 is supported.`);
+    }
   }
+  // Check for OpenAPI 3.x
+  else if (spec.openapi) {
+    specVersion = spec.openapi;
 
-  const specVersion = spec.openapi || spec.swagger
-
-  // Validate version format
-  if (!/^\d+\.\d+/.test(specVersion)) {
-    throw new Error(`Invalid OpenAPI version format: ${specVersion}`)
+    // Validate OpenAPI version format (3.x.x)
+    if (!/^\d+\.\d+\.\d+$/.test(specVersion)) {
+      throw new Error(`Invalid OpenAPI version format: ${specVersion}`);
+    }
+  }
+  else {
+    throw new Error('Invalid specification: missing "openapi" or "swagger" field');
   }
 
   if (versions.length === 0) {
-    throw new Error('No OpenAPI schema validators found')
+    throw new Error('No schema validators found')
   }
 
   const schemaVersion = findBestMatch(specVersion)
 
   if (!schemaVersion) {
     throw new Error(
-      `Unsupported OpenAPI version: ${specVersion}. ` +
+      `Unsupported version: ${specVersion}. ` +
       `Available versions: ${versions.join(', ')}`
-    )
+    );
   }
 
   return {
     version: specVersion,      // Original version from spec
     schemaVersion,             // Schema version to use for validation
-  }
+    isSwagger,                 // Whether this is Swagger 2.0
+  };
 }
 
 /**
  * Get version info without throwing errors (for UI display)
- * @param {Object} spec - Parsed OpenAPI specification
+ * @param {Object} spec - Parsed OpenAPI/Swagger specification
  * @returns {Promise<Object>}
  */
 export async function getVersionInfo(spec) {
@@ -83,9 +101,10 @@ export async function getVersionInfo(spec) {
     }
   } catch (error) {
     return {
-      version: spec?.openapi || 'unknown',
+      version: spec?.openapi || spec?.swagger || 'unknown',
       schemaVersion: null,
       isSupported: false,
+      isSwagger: !!spec?.swagger,
       error: error.message,
       availableVersions: versions,
     }

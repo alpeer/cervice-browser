@@ -16,7 +16,7 @@ export async function POST(request) {
     }
 
     // Detect version and load appropriate schema
-    const { version, schemaVersion } = await detectVersion(spec);
+    const { version, schemaVersion, isSwagger } = await detectVersion(spec);
     const schema = await loadSchema(schemaVersion);
 
     // Validate spec against schema
@@ -28,6 +28,7 @@ export async function POST(request) {
         valid: false,
         version,
         schemaVersion,
+        isSwagger,
         errors: validate.errors.map(err => ({
           path: err.instancePath,
           message: err.message,
@@ -40,6 +41,7 @@ export async function POST(request) {
       valid: true,
       version,
       schemaVersion,
+      isSwagger,
       errors: [],
     });
   } catch (error) {
