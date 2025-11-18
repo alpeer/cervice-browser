@@ -1,0 +1,72 @@
+{
+  "name": "User",
+  "tableName": "users",
+  "columns": {
+    "id": {
+      "type": "int",
+      "primary": true,
+      "generated": true,
+      "nullable": false
+    },
+    "email": {
+      "type": "varchar",
+      "length": 255,
+      "unique": true,
+      "nullable": false
+    },
+    "username": {
+      "type": "varchar",
+      "length": 100,
+      "unique": true,
+      "nullable": false
+    },
+    "password": {
+      "type": "varchar",
+      "length": 255,
+      "nullable": false
+    },
+    "first_name": {
+      "type": "varchar",
+      "length": 100,
+      "nullable": true
+    },
+    "last_name": {
+      "type": "varchar",
+      "length": 100,
+      "nullable": true
+    },
+    "created_at": {
+      "type": "timestamp",
+      "createDate": true,
+      "nullable": false
+    },
+    "updated_at": {
+      "type": "timestamp",
+      "updateDate": true,
+      "nullable": false
+    }
+  },
+  "relations": {
+    "orders": {
+      "type": "one-to-many",
+      "target": "Order",
+      "inverseSide": "user"
+    }
+  },
+  "indices": [
+    {
+      "name": "idx_email",
+      "columns": [
+        "email"
+      ],
+      "unique": true
+    },
+    {
+      "name": "idx_username",
+      "columns": [
+        "username"
+      ],
+      "unique": true
+    }
+  ]
+}
