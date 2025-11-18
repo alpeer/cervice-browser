@@ -24,6 +24,7 @@ export function groupByTags(paths) {
           description: config.description,
           operationId: config.operationId,
           deprecated: config.deprecated || false,
+          config, // Include the full config object for EndpointDetail
         });
       });
     });

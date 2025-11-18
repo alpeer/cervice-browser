@@ -62,11 +62,44 @@ export default function SidebarSecondary() {
       case 'objects': {
         const allSchemas = getSchemas(spec, isSwagger);
         const domainModels = getDomainModels(allSchemas);
-        const schema = domainModels[selectedTag];
 
+        // If special tag '__all_objects__', show list of all objects
+        if (selectedTag === '__all_objects__') {
+          const objectNames = Object.keys(domainModels).sort();
+
+          return (
+            <>
+              <div className="sidebar-secondary__header">
+                <h4>Objects</h4>
+                <span className="sidebar-secondary__count">{objectNames.length} objects</span>
+              </div>
+              <List className="sidebar-secondary__list">
+                {objectNames.map((name) => {
+                  const schema = domainModels[name];
+                  const propertyCount = schema.properties ? Object.keys(schema.properties).length : 0;
+
+                  return (
+                    <ListItemButton
+                      key={name}
+                      className={`sidebar-secondary__item ${
+                        selectedItem?.name === name ? 'sidebar-secondary__item--selected' : ''
+                      }`}
+                      onClick={() => setSelectedItem({ name, schema, type: 'object' })}
+                    >
+                      <div className="object-name">{name}</div>
+                      <div className="object-meta">{propertyCount} properties</div>
+                    </ListItemButton>
+                  );
+                })}
+              </List>
+            </>
+          );
+        }
+
+        // Show properties of a specific selected object (legacy - may not be used now)
+        const schema = domainModels[selectedTag];
         if (!schema) return null;
 
-        // Show properties of the selected object
         const properties = schema.properties ? Object.keys(schema.properties) : [];
 
         return (

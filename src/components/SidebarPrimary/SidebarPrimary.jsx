@@ -29,6 +29,13 @@ export default function SidebarPrimary() {
   if (!spec) return null;
 
   const handleSectionClick = (sectionId) => {
+    // Objects should not be collapsible - show objects in second sidebar instead
+    if (sectionId === 'objects') {
+      setSelectedSection(sectionId);
+      setSelectedTag('__all_objects__'); // Special tag to show all objects in second sidebar
+      return;
+    }
+
     toggleSection(sectionId);
     setSelectedSection(sectionId);
   };
@@ -144,21 +151,34 @@ export default function SidebarPrimary() {
         <h3>OpenAPI Viewer</h3>
       </div>
       <List className="sidebar-primary__list">
-        {menuItems.map((menuItem) => (
-          <div key={menuItem.id}>
-            <ListItemButton
-              onClick={() => handleSectionClick(menuItem.id)}
-              className={`sidebar-primary__item ${openSections[menuItem.id] ? 'sidebar-primary__item--active' : ''}`}
-            >
-              <ListItemText primary={menuItem.label} />
-              {openSections[menuItem.id] ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
+        {menuItems.map((menuItem) => {
+          // Objects should not be collapsible
+          const isCollapsible = menuItem.id !== 'objects';
 
-            <Collapse in={openSections[menuItem.id]} timeout="auto" unmountOnExit>
-              {renderSectionContent(menuItem.id)}
-            </Collapse>
-          </div>
-        ))}
+          return (
+            <div key={menuItem.id}>
+              <ListItemButton
+                onClick={() => handleSectionClick(menuItem.id)}
+                className={`sidebar-primary__item ${
+                  isCollapsible && openSections[menuItem.id]
+                    ? 'sidebar-primary__item--active'
+                    : menuItem.id === 'objects' && selectedSection === 'objects'
+                    ? 'sidebar-primary__item--active'
+                    : ''
+                }`}
+              >
+                <ListItemText primary={menuItem.label} />
+                {isCollapsible && (openSections[menuItem.id] ? <ExpandLess /> : <ExpandMore />)}
+              </ListItemButton>
+
+              {isCollapsible && (
+                <Collapse in={openSections[menuItem.id]} timeout="auto" unmountOnExit>
+                  {renderSectionContent(menuItem.id)}
+                </Collapse>
+              )}
+            </div>
+          );
+        })}
       </List>
     </nav>
   );
