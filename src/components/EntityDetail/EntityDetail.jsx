@@ -35,8 +35,8 @@ export default function EntityDetail() {
 
   // Convert entities to nodes and edges
   const initialNodes = useMemo(() => {
-    return entitiesToNodes(entities);
-  }, [entities]);
+    return entitiesToNodes(entities, relations);
+  }, [entities, relations]);
 
   const initialEdges = useMemo(() => {
     return relationsToEdges(relations);
@@ -45,10 +45,10 @@ export default function EntityDetail() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // Update nodes when entities change
+  // Update nodes when entities or relations change
   useEffect(() => {
-    setNodes(entitiesToNodes(entities));
-  }, [entities, setNodes]);
+    setNodes(entitiesToNodes(entities, relations));
+  }, [entities, relations, setNodes]);
 
   // Update edges when relations change
   useEffect(() => {
