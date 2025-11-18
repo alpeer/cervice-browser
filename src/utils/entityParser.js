@@ -353,8 +353,10 @@ export function entitiesToNodes(entities, relations = []) {
   const nodes = [];
 
   Object.values(entities).forEach((entity, index) => {
-    // Find all relations for this entity
-    const entityRelations = relations.filter(rel => rel.fromEntity === entity.name);
+    // Find all relations involving this entity (both as source and target)
+    const entityRelations = relations.filter(
+      rel => rel.fromEntity === entity.name || rel.toEntity === entity.name
+    );
 
     nodes.push({
       id: entity.name,

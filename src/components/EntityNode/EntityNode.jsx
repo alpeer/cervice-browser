@@ -15,12 +15,23 @@ export default function EntityNode({ data, selected }) {
   const [relationsExpanded, setRelationsExpanded] = useState(false);
 
   // Map column names to check if they have relations
+  // Need to check both fromColumn (for outgoing) and toColumn (for incoming)
   const columnRelationsMap = {};
   relations.forEach(rel => {
-    if (!columnRelationsMap[rel.fromColumn]) {
-      columnRelationsMap[rel.fromColumn] = [];
+    // Add to fromColumn map if this entity is the source
+    if (rel.fromEntity === name) {
+      if (!columnRelationsMap[rel.fromColumn]) {
+        columnRelationsMap[rel.fromColumn] = [];
+      }
+      columnRelationsMap[rel.fromColumn].push(rel);
     }
-    columnRelationsMap[rel.fromColumn].push(rel);
+    // Add to toColumn map if this entity is the target
+    if (rel.toEntity === name) {
+      if (!columnRelationsMap[rel.toColumn]) {
+        columnRelationsMap[rel.toColumn] = [];
+      }
+      columnRelationsMap[rel.toColumn].push(rel);
+    }
   });
 
   const renderColumnTag = (column) => {
@@ -104,20 +115,20 @@ export default function EntityNode({ data, selected }) {
       </div>
 
       {/* Relations */}
-      {relations.length > 0 && (
+      {relations.filter(rel => rel.fromEntity === name).length > 0 && (
         <div className="entity-node__relations">
           <div
             className="entity-node__relations-header"
             onClick={() => setRelationsExpanded(!relationsExpanded)}
           >
             <span className="entity-node__relations-title">
-              Relations ({relations.length})
+              Relations ({relations.filter(rel => rel.fromEntity === name).length})
             </span>
             {relationsExpanded ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
           </div>
           {relationsExpanded && (
             <div className="entity-node__relations-content">
-              {relations.map((rel, idx) => (
+              {relations.filter(rel => rel.fromEntity === name).map((rel, idx) => (
                 <div key={idx} className="entity-node__relation">
                   <div className="relation-name">{rel.relationName}</div>
                   <div className="relation-details">
