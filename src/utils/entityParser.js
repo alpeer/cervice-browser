@@ -76,14 +76,17 @@ function normalizeColumn(colName, colDef) {
  * Parse TypeORM relations object
  * @param {Object} relations - Relations object from EntitySchema
  * @param {string} entityName - Name of the entity
- * @returns {Array} Array of relation objects
+ * @param {Array} existingColumns - Existing columns array to check for duplicates
+ * @returns {Object} Object with parsedRelations array and generatedColumns array
  */
-function parseTypeORMRelations(relations, entityName) {
+function parseTypeORMRelations(relations, entityName, existingColumns) {
   if (!relations || typeof relations !== 'object') {
-    return [];
+    return { parsedRelations: [], generatedColumns: [] };
   }
 
   const parsedRelations = [];
+  const generatedColumns = [];
+  const existingColumnNames = new Set(existingColumns.map(c => c.name));
 
   Object.entries(relations).forEach(([relationName, relationDef]) => {
     // Skip one-to-many and inverse relations (we only track many-to-one and many-to-many)
@@ -91,13 +94,63 @@ function parseTypeORMRelations(relations, entityName) {
       return; // Skip - this is the inverse side
     }
 
-    // Extract join column name
+    // Extract join column information
     let fromColumn = null;
-    if (relationDef.joinColumn && relationDef.joinColumn.name) {
-      fromColumn = relationDef.joinColumn.name;
-    } else if (relationDef.type === 'many-to-one') {
-      // Infer from relation name (e.g., 'user' -> 'user_id')
+    let joinColumnDef = null;
+
+    // Check for joinTable (many-to-many)
+    if (relationDef.joinTable) {
+      const joinTable = relationDef.joinTable;
+
+      // For many-to-many, we create the join column from joinTable.joinColumn
+      if (joinTable.joinColumn) {
+        if (typeof joinTable.joinColumn === 'object' && joinTable.joinColumn.name) {
+          fromColumn = joinTable.joinColumn.name;
+          joinColumnDef = {
+            name: fromColumn,
+            referencedColumnName: joinTable.joinColumn.referencedColumnName || 'id',
+          };
+        }
+      }
+    }
+    // Check for joinColumn (many-to-one, one-to-one)
+    else if (relationDef.joinColumn) {
+      if (typeof relationDef.joinColumn === 'object' && relationDef.joinColumn.name) {
+        fromColumn = relationDef.joinColumn.name;
+        joinColumnDef = {
+          name: fromColumn,
+          referencedColumnName: relationDef.joinColumn.referencedColumnName || 'id',
+        };
+      } else if (relationDef.joinColumn === true) {
+        // Auto-generate join column name
+        fromColumn = `${relationName}Id`;
+        joinColumnDef = {
+          name: fromColumn,
+          referencedColumnName: 'id',
+        };
+      }
+    }
+    // No explicit joinColumn - infer from relation name
+    else if (relationDef.type === 'many-to-one') {
       fromColumn = `${relationName}_id`;
+      joinColumnDef = {
+        name: fromColumn,
+        referencedColumnName: 'id',
+      };
+    }
+
+    // Generate column if it doesn't exist
+    if (fromColumn && !existingColumnNames.has(fromColumn)) {
+      generatedColumns.push({
+        name: fromColumn,
+        type: 'int', // Default to int for foreign keys
+        nullable: relationDef.nullable !== false,
+        unique: relationDef.type === 'one-to-one', // One-to-one should be unique
+        primaryKey: false,
+        autoIncrement: false,
+        generated: true, // Mark as generated from relation
+      });
+      existingColumnNames.add(fromColumn);
     }
 
     // Determine relation type for our system
@@ -114,14 +167,16 @@ function parseTypeORMRelations(relations, entityName) {
         fromEntity: entityName,
         fromColumn: fromColumn,
         toEntity: relationDef.target,
-        toColumn: 'id', // Default to id
+        toColumn: joinColumnDef?.referencedColumnName || 'id',
         onDelete: relationDef.onDelete,
         onUpdate: relationDef.onUpdate,
+        cascade: relationDef.cascade,
+        relationName: relationName,
       });
     }
   });
 
-  return parsedRelations;
+  return { parsedRelations, generatedColumns };
 }
 
 /**
@@ -162,7 +217,10 @@ export function parseEntitySchema(schema, fileName) {
   if (schema.relations) {
     if (typeof schema.relations === 'object' && !Array.isArray(schema.relations)) {
       // TypeORM format (object with relation definitions)
-      relations = parseTypeORMRelations(schema.relations, entityName);
+      const { parsedRelations, generatedColumns } = parseTypeORMRelations(schema.relations, entityName, columns);
+      relations = parsedRelations;
+      // Add generated columns to columns array
+      columns.push(...generatedColumns);
     } else if (Array.isArray(schema.relations)) {
       // Legacy array format
       schema.relations.forEach((rel) => {
@@ -174,6 +232,8 @@ export function parseEntitySchema(schema, fileName) {
           toColumn: rel.toColumn || 'id',
           onDelete: rel.onDelete,
           onUpdate: rel.onUpdate,
+          cascade: rel.cascade,
+          relationName: rel.name || rel.fromColumn,
         });
       });
     }
@@ -286,12 +346,16 @@ function analyzeRelations(relations, entities) {
 /**
  * Convert entities to React Flow nodes
  * @param {Object} entities - Map of entity name to entity object
+ * @param {Array} relations - Array of relation objects
  * @returns {Array} React Flow nodes
  */
-export function entitiesToNodes(entities) {
+export function entitiesToNodes(entities, relations = []) {
   const nodes = [];
 
   Object.values(entities).forEach((entity, index) => {
+    // Find all relations for this entity
+    const entityRelations = relations.filter(rel => rel.fromEntity === entity.name);
+
     nodes.push({
       id: entity.name,
       type: 'entityNode',
@@ -301,6 +365,7 @@ export function entitiesToNodes(entities) {
         tableName: entity.tableName,
         columns: entity.columns,
         indexes: entity.indexes,
+        relations: entityRelations,
         description: entity.description,
       },
     });
@@ -319,6 +384,8 @@ export function relationsToEdges(relations) {
     id: rel.id,
     source: rel.fromEntity,
     target: rel.toEntity,
+    sourceHandle: `${rel.fromEntity}-${rel.fromColumn}-source`, // Specific column handle
+    targetHandle: `${rel.toEntity}-${rel.toColumn}-target`,   // Specific column handle
     type: 'smoothstep',
     animated: false,
     label: rel.cardinality,
