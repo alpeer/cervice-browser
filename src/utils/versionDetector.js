@@ -4,7 +4,16 @@
  * @returns {string[]} Array of supported versions (e.g., ['2.0', '3.0.3', '3.1.0', '3.2.0'])
  */
 import fs from "fs"
-const versions = fs.readdirSync("./src/lib/validators").map(i => i.match(/\d+\.(\d+\.)?\d+/)[0])
+import path from "path"
+
+const versions = fs
+  .readdirSync(path.join(process.cwd(), "src/lib/validators"))
+  .map(i => {
+    const match = i.match(/\d+\.(\d+\.)?\d+/)
+    return match ? match[0] : null
+  })
+  .filter(Boolean) // Remove null values
+
 export const getAvailableVersions = () => versions
 
 /**

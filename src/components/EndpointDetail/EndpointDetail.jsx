@@ -1,61 +1,112 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { getMethodColor } from '@/components/EndpointsList/helpers/groupByTags';
+import { resolveSchema, buildExample } from '@/utils/schemaResolver';
 import Collapsible from '@/ui/Collapsible/Collapsible';
-import Button from '@/ui/Button/Button';
 import './EndpointDetail.scss';
 
 export default function EndpointDetail({ endpoint, spec, isSwagger }) {
-  const [testResult, setTestResult] = useState(null);
   const { path, method, config } = endpoint;
 
-  const schemas = isSwagger ? spec.definitions : spec.components?.schemas;
+  // Extract and resolve request schema
+  const requestSchema = useMemo(() => {
+    let rawSchema = null;
 
-  // Extract request schema
-  const getRequestSchema = () => {
     if (isSwagger) {
       // Swagger 2.0
       const bodyParam = config.parameters?.find(p => p.in === 'body');
-      return bodyParam?.schema;
+      rawSchema = bodyParam?.schema;
     } else {
       // OpenAPI 3.x
       const requestBody = config.requestBody;
-      if (!requestBody) return null;
-      const content = requestBody.content || {};
-      const jsonContent = content['application/json'];
-      return jsonContent?.schema;
+      if (requestBody) {
+        const content = requestBody.content || {};
+        const jsonContent = content['application/json'];
+        rawSchema = jsonContent?.schema;
+      }
     }
-  };
 
-  // Extract response schemas
-  const getResponseSchemas = () => {
+    if (!rawSchema) return null;
+
+    return resolveSchema(rawSchema, spec, isSwagger);
+  }, [config, spec, isSwagger]);
+
+  // Extract and resolve response schemas
+  const responseSchemas = useMemo(() => {
     const responses = config.responses || {};
     const result = {};
 
     Object.entries(responses).forEach(([code, response]) => {
+      let rawSchema = null;
+
       if (isSwagger) {
         // Swagger 2.0
-        result[code] = {
-          description: response.description,
-          schema: response.schema,
-        };
+        rawSchema = response.schema;
       } else {
         // OpenAPI 3.x
         const content = response.content || {};
         const jsonContent = content['application/json'];
-        result[code] = {
-          description: response.description,
-          schema: jsonContent?.schema,
-        };
+        rawSchema = jsonContent?.schema;
       }
+
+      result[code] = {
+        description: response.description,
+        schema: rawSchema ? resolveSchema(rawSchema, spec, isSwagger) : null,
+      };
     });
 
     return result;
-  };
+  }, [config, spec, isSwagger]);
 
-  const requestSchema = getRequestSchema();
-  const responseSchemas = getResponseSchemas();
+  // Render schema as a table
+  const renderSchemaTable = (schema) => {
+    if (!schema || !schema.properties) {
+      return null;
+    }
+
+    return (
+      <table className="schema-table">
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(schema.properties).map(([propName, propSchema]) => {
+            const isRequired = schema.required?.includes(propName);
+            const type = propSchema.type || 'any';
+            const format = propSchema.format ? ` (${propSchema.format})` : '';
+
+            return (
+              <tr key={propName}>
+                <td><code>{propName}</code></td>
+                <td>
+                  {type}{format}
+                  {propSchema.enum && (
+                    <div className="enum-values">
+                      enum: [{propSchema.enum.join(', ')}]
+                    </div>
+                  )}
+                </td>
+                <td>
+                  {isRequired ? (
+                    <span className="badge badge--required">Yes</span>
+                  ) : (
+                    <span className="badge badge--optional">No</span>
+                  )}
+                </td>
+                <td>{propSchema.description || '-'}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    );
+  };
 
   return (
     <div className="endpoint-detail">
@@ -97,7 +148,7 @@ export default function EndpointDetail({ endpoint, spec, isSwagger }) {
               </tr>
             </thead>
             <tbody>
-              {config.parameters.map((param, idx) => (
+              {config.parameters.filter(p => p.in !== 'body').map((param, idx) => (
                 <tr key={idx}>
                   <td><code>{param.name}</code></td>
                   <td><span className="badge">{param.in}</span></td>
@@ -121,7 +172,15 @@ export default function EndpointDetail({ endpoint, spec, isSwagger }) {
       {requestSchema && (
         <div className="endpoint-detail__section">
           <h3>Request Body</h3>
-          <Collapsible title="Schema" defaultOpen={true}>
+          <Collapsible title="Schema Structure" defaultOpen={true}>
+            {renderSchemaTable(requestSchema)}
+          </Collapsible>
+          <Collapsible title="Example JSON" defaultOpen={false}>
+            <pre className="schema-code">
+              <code>{JSON.stringify(buildExample(requestSchema), null, 2)}</code>
+            </pre>
+          </Collapsible>
+          <Collapsible title="Full Schema (JSON)" defaultOpen={false}>
             <pre className="schema-code">
               <code>{JSON.stringify(requestSchema, null, 2)}</code>
             </pre>
@@ -134,16 +193,31 @@ export default function EndpointDetail({ endpoint, spec, isSwagger }) {
         <div className="endpoint-detail__section">
           <h3>Responses</h3>
           {Object.entries(responseSchemas).map(([code, response]) => (
-            <Collapsible key={code} title={`${code} - ${response.description || 'No description'}`}>
-              {response.schema && (
-                <pre className="schema-code">
-                  <code>{JSON.stringify(response.schema, null, 2)}</code>
-                </pre>
-              )}
-              {!response.schema && (
+            <div key={code} className="response-section">
+              <h4 className="response-code">
+                <span className={`status-badge status-${code[0]}xx`}>{code}</span>
+                {response.description}
+              </h4>
+              {response.schema ? (
+                <>
+                  <Collapsible title="Schema Structure" defaultOpen={code === '200'}>
+                    {renderSchemaTable(response.schema)}
+                  </Collapsible>
+                  <Collapsible title="Example JSON" defaultOpen={false}>
+                    <pre className="schema-code">
+                      <code>{JSON.stringify(buildExample(response.schema), null, 2)}</code>
+                    </pre>
+                  </Collapsible>
+                  <Collapsible title="Full Schema (JSON)" defaultOpen={false}>
+                    <pre className="schema-code">
+                      <code>{JSON.stringify(response.schema, null, 2)}</code>
+                    </pre>
+                  </Collapsible>
+                </>
+              ) : (
                 <p className="no-schema">No response schema defined</p>
               )}
-            </Collapsible>
+            </div>
           ))}
         </div>
       )}
@@ -163,7 +237,7 @@ export default function EndpointDetail({ endpoint, spec, isSwagger }) {
                 curl -X {method} \{'\n'}
                   "{path}" \{'\n'}
                   -H "Content-Type: application/json"
-                {requestSchema && ` \\\n  -d '${JSON.stringify({ example: "data" }, null, 2)}'`}
+                {requestSchema && ` \\\n  -d '${JSON.stringify(buildExample(requestSchema), null, 2)}'`}
               </code>
             </pre>
           </div>

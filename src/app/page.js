@@ -1,6 +1,7 @@
 'use client';
 
-import Sidebar from '@/components/Sidebar/Sidebar';
+import SidebarPrimary from '@/components/SidebarPrimary/SidebarPrimary';
+import SidebarSecondary from '@/components/SidebarSecondary/SidebarSecondary';
 import SpecUploader from '@/components/SpecUploader/SpecUploader';
 import EndpointDetail from '@/components/EndpointDetail/EndpointDetail';
 import ObjectDetail from '@/components/ObjectDetail/ObjectDetail';
@@ -11,7 +12,7 @@ import Button from '@/ui/Button/Button';
 import './page.scss';
 
 export default function Home() {
-  const { spec, version, schemaVersion, isSwagger, isValid, errors, selectedView, selectedItem, clearSpec } = useSpecState();
+  const { spec, version, schemaVersion, isSwagger, isValid, errors, selectedSection, selectedItem, clearSpec } = useSpecState();
 
   const renderContent = () => {
     if (!spec) {
@@ -38,7 +39,7 @@ export default function Home() {
     }
 
     // No item selected - show empty state
-    if (!selectedItem && selectedView !== 'entities') {
+    if (!selectedItem && selectedSection !== 'entities') {
       return (
         <div className="empty-state">
           <div className="empty-state__content">
@@ -49,8 +50,8 @@ export default function Home() {
       );
     }
 
-    // Show detail view based on selected item
-    switch (selectedView) {
+    // Show detail view based on selected section and item
+    switch (selectedSection) {
       case 'endpoints':
         return selectedItem ? <EndpointDetail endpoint={selectedItem} spec={spec} isSwagger={isSwagger} /> : null;
 
@@ -70,7 +71,8 @@ export default function Home() {
 
   return (
     <div className="app-container">
-      {spec && isValid && <Sidebar />}
+      {spec && isValid && <SidebarPrimary />}
+      {spec && isValid && <SidebarSecondary />}
       <main className="content">
         {spec && isValid && (
           <div className="content__header">

@@ -107,7 +107,8 @@
     border-radius: 4px;
   }
 
-  .params-table {
+  .params-table,
+  .schema-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
@@ -132,6 +133,60 @@
       padding: 2px 6px;
       border-radius: 3px;
       font-size: 12px;
+    }
+  }
+
+  .enum-values {
+    font-size: 11px;
+    color: #666;
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  .response-section {
+    margin-bottom: 24px;
+    padding: 16px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .response-code {
+    font-size: 16px;
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .status-badge {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+
+    &.status-2xx {
+      background-color: #e8f5e9;
+      color: #388e3c;
+    }
+
+    &.status-3xx {
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+
+    &.status-4xx {
+      background-color: #fff3e0;
+      color: #f57c00;
+    }
+
+    &.status-5xx {
+      background-color: #ffebee;
+      color: #d32f2f;
     }
   }
 
