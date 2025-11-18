@@ -18,6 +18,11 @@ export const useSpecState = create((set) => ({
   // Collapsible states
   openSections: { endpoints: true },
 
+  // Entity state
+  entities: {},        // Map of entity name to entity object
+  relations: [],       // Array of relation objects
+  focusedEntity: null, // Entity name that's being hovered in sidebar
+
   setSpec: (spec, version, schemaVersion, isSwagger, isValid, errors = []) =>
     set({ spec, version, schemaVersion, isSwagger, isValid, errors }),
 
@@ -51,4 +56,14 @@ export const useSpecState = create((set) => ({
         [section]: !state.openSections[section],
       },
     })),
+
+  // Entity management
+  setEntities: (entities, relations) =>
+    set({ entities, relations }),
+
+  clearEntities: () =>
+    set({ entities: {}, relations: [], focusedEntity: null }),
+
+  setFocusedEntity: (entityName) =>
+    set({ focusedEntity: entityName }),
 }));

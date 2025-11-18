@@ -1,0 +1,111 @@
+.entity-detail {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+
+  &__header {
+    padding: 20px 24px;
+    background-color: #fff;
+    border-bottom: 2px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+
+    h2 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      color: #333;
+    }
+  }
+
+  &__info {
+    flex: 1;
+  }
+
+  &__stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 8px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  &__canvas {
+    flex: 1;
+    position: relative;
+    background-color: #fafafa;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+
+    h3 {
+      margin: 0 0 8px 0;
+      font-size: 20px;
+      color: #333;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: #666;
+    }
+  }
+}
+
+.stat-item {
+  font-size: 13px;
+  color: #666;
+
+  strong {
+    color: #1976d2;
+    font-size: 16px;
+    margin-right: 4px;
+  }
+}
+
+// React Flow custom edge styles
+.react-flow__edge {
+  .react-flow__edge-path {
+    stroke: #666;
+    stroke-width: 2;
+  }
+
+  .react-flow__edge-text {
+    font-size: 11px;
+    font-weight: 700;
+    fill: #fff;
+  }
+
+  .react-flow__edge-textbg {
+    fill: #1976d2;
+  }
+}
+
+// React Flow controls
+.react-flow__controls {
+  button {
+    background-color: #fff;
+    border: 1px solid #ddd;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+}
+
+// React Flow minimap
+.react-flow__minimap {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+}

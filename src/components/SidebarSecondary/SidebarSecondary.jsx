@@ -14,10 +14,15 @@ export default function SidebarSecondary() {
     selectedTag,
     selectedItem,
     setSelectedItem,
+    entities,
+    setFocusedEntity,
   } = useSpecState();
 
   // Don't show if no tag/category is selected
-  if (!spec || !selectedTag) return null;
+  if (!selectedTag) return null;
+
+  // For entities section, we don't need spec
+  if (selectedSection !== 'entities' && !spec) return null;
 
   const renderItems = () => {
     switch (selectedSection) {
@@ -167,6 +172,60 @@ export default function SidebarSecondary() {
             </List>
           </>
         );
+      }
+
+      case 'entities': {
+        // Show list of all entities
+        if (selectedTag === '__all_entities__') {
+          const entityList = Object.values(entities);
+
+          return (
+            <>
+              <div className="sidebar-secondary__header">
+                <h4>Entities</h4>
+                <span className="sidebar-secondary__count">{entityList.length} entities</span>
+              </div>
+              <List className="sidebar-secondary__list">
+                {entityList.length === 0 && (
+                  <div className="sidebar-secondary__empty">
+                    No entities loaded. Upload schema files to get started.
+                  </div>
+                )}
+                {entityList.map((entity) => {
+                  const columnCount = entity.columns?.length || 0;
+
+                  return (
+                    <ListItemButton
+                      key={entity.name}
+                      className={`sidebar-secondary__item ${
+                        selectedItem?.name === entity.name ? 'sidebar-secondary__item--selected' : ''
+                      }`}
+                      onClick={() => {
+                        setSelectedItem({ name: entity.name, type: 'entity' });
+                        // Center entity in React Flow viewport
+                        if (typeof window !== 'undefined' && window.centerEntityInFlow) {
+                          window.centerEntityInFlow(entity.name);
+                        }
+                      }}
+                      onMouseEnter={() => setFocusedEntity(entity.name)}
+                      onMouseLeave={() => setFocusedEntity(null)}
+                    >
+                      <div className="entity-item">
+                        <div className="entity-item__name">{entity.name}</div>
+                        <div className="entity-item__meta">
+                          {columnCount} columns
+                          {entity.indexes?.length > 0 && `, ${entity.indexes.length} indexes`}
+                        </div>
+                      </div>
+                    </ListItemButton>
+                  );
+                })}
+              </List>
+            </>
+          );
+        }
+
+        return null;
       }
 
       default:

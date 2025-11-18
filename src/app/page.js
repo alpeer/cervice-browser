@@ -6,17 +6,36 @@ import SpecUploader from '@/components/SpecUploader/SpecUploader';
 import EndpointDetail from '@/components/EndpointDetail/EndpointDetail';
 import ObjectDetail from '@/components/ObjectDetail/ObjectDetail';
 import WebhookDetail from '@/components/WebhookDetail/WebhookDetail';
-import EntitiesList from '@/components/EntitiesList/EntitiesList';
+import EntityDetail from '@/components/EntityDetail/EntityDetail';
 import { useSpecState } from '@/hooks/useSpecState';
 import Button from '@/ui/Button/Button';
 import './page.scss';
 
 export default function Home() {
-  const { spec, version, schemaVersion, isSwagger, isValid, errors, selectedSection, selectedItem, clearSpec } = useSpecState();
+  const { spec, version, schemaVersion, isSwagger, isValid, errors, selectedSection, selectedItem, setSelectedSection, clearSpec } = useSpecState();
 
   const renderContent = () => {
+    // Entities section doesn't require spec
+    if (selectedSection === 'entities') {
+      return <EntityDetail />;
+    }
+
     if (!spec) {
-      return <SpecUploader />;
+      return (
+        <div className="spec-uploader-container">
+          <SpecUploader />
+          <div className="or-divider">
+            <span>OR</span>
+          </div>
+          <Button
+            onClick={() => setSelectedSection('entities')}
+            variant="outlined"
+            size="large"
+          >
+            Go to Entity Diagram
+          </Button>
+        </div>
+      );
     }
 
     if (!isValid) {
@@ -39,7 +58,7 @@ export default function Home() {
     }
 
     // No item selected - show empty state
-    if (!selectedItem && selectedSection !== 'entities') {
+    if (!selectedItem) {
       return (
         <div className="empty-state">
           <div className="empty-state__content">
@@ -53,28 +72,28 @@ export default function Home() {
     // Show detail view based on selected section and item
     switch (selectedSection) {
       case 'endpoints':
-        return selectedItem ? <EndpointDetail endpoint={selectedItem} spec={spec} isSwagger={isSwagger} /> : null;
+        return <EndpointDetail endpoint={selectedItem} spec={spec} isSwagger={isSwagger} />;
 
       case 'objects':
-        return selectedItem ? <ObjectDetail object={selectedItem} /> : null;
+        return <ObjectDetail object={selectedItem} />;
 
       case 'webhooks':
-        return selectedItem ? <WebhookDetail webhook={selectedItem} /> : null;
-
-      case 'entities':
-        return <EntitiesList />;
+        return <WebhookDetail webhook={selectedItem} />;
 
       default:
         return null;
     }
   };
 
+  // Show sidebars for entities section or when spec is valid
+  const showSidebars = selectedSection === 'entities' || (spec && isValid);
+
   return (
     <div className="app-container">
-      {spec && isValid && <SidebarPrimary />}
-      {spec && isValid && <SidebarSecondary />}
+      {showSidebars && <SidebarPrimary />}
+      {showSidebars && <SidebarSecondary />}
       <main className="content">
-        {spec && isValid && (
+        {spec && isValid && selectedSection !== 'entities' && (
           <div className="content__header">
             <div className="spec-info">
               <h1>{spec.info?.title || 'OpenAPI Specification'}</h1>

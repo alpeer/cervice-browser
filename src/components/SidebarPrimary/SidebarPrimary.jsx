@@ -26,13 +26,20 @@ export default function SidebarPrimary() {
     toggleSection,
   } = useSpecState();
 
-  if (!spec) return null;
+  // Always show sidebar for entities section, even without spec
+  if (!spec && selectedSection !== 'entities') return null;
 
   const handleSectionClick = (sectionId) => {
-    // Objects should not be collapsible - show objects in second sidebar instead
+    // Objects and Entities should not be collapsible - show items in second sidebar instead
     if (sectionId === 'objects') {
       setSelectedSection(sectionId);
       setSelectedTag('__all_objects__'); // Special tag to show all objects in second sidebar
+      return;
+    }
+
+    if (sectionId === 'entities') {
+      setSelectedSection(sectionId);
+      setSelectedTag('__all_entities__'); // Special tag to show all entities in second sidebar
       return;
     }
 
@@ -152,8 +159,8 @@ export default function SidebarPrimary() {
       </div>
       <List className="sidebar-primary__list">
         {menuItems.map((menuItem) => {
-          // Objects should not be collapsible
-          const isCollapsible = menuItem.id !== 'objects';
+          // Objects and Entities should not be collapsible
+          const isCollapsible = menuItem.id !== 'objects' && menuItem.id !== 'entities';
 
           return (
             <div key={menuItem.id}>
@@ -162,7 +169,7 @@ export default function SidebarPrimary() {
                 className={`sidebar-primary__item ${
                   isCollapsible && openSections[menuItem.id]
                     ? 'sidebar-primary__item--active'
-                    : menuItem.id === 'objects' && selectedSection === 'objects'
+                    : (menuItem.id === 'objects' || menuItem.id === 'entities') && selectedSection === menuItem.id
                     ? 'sidebar-primary__item--active'
                     : ''
                 }`}

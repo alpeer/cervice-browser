@@ -1,0 +1,47 @@
+{
+  "name": "Category",
+  "tableName": "categories",
+  "description": "Product categories",
+  "columns": [
+    {
+      "name": "id",
+      "type": "INTEGER",
+      "primaryKey": true,
+      "autoIncrement": true,
+      "nullable": false
+    },
+    {
+      "name": "name",
+      "type": "VARCHAR(100)",
+      "unique": true,
+      "nullable": false
+    },
+    {
+      "name": "description",
+      "type": "TEXT",
+      "nullable": true
+    },
+    {
+      "name": "parent_id",
+      "type": "INTEGER",
+      "nullable": true,
+      "foreignKey": {
+        "entity": "Category",
+        "column": "id",
+        "onDelete": "CASCADE",
+        "onUpdate": "CASCADE"
+      }
+    }
+  ],
+  "indexes": [
+    {
+      "name": "idx_name",
+      "columns": ["name"],
+      "unique": true
+    },
+    {
+      "name": "idx_parent",
+      "columns": ["parent_id"]
+    }
+  ]
+}

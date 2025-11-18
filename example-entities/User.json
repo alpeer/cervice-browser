@@ -1,0 +1,65 @@
+{
+  "name": "User",
+  "tableName": "users",
+  "description": "User account entity",
+  "columns": [
+    {
+      "name": "id",
+      "type": "INTEGER",
+      "primaryKey": true,
+      "autoIncrement": true,
+      "nullable": false
+    },
+    {
+      "name": "email",
+      "type": "VARCHAR(255)",
+      "unique": true,
+      "nullable": false
+    },
+    {
+      "name": "username",
+      "type": "VARCHAR(100)",
+      "unique": true,
+      "nullable": false
+    },
+    {
+      "name": "password",
+      "type": "VARCHAR(255)",
+      "nullable": false
+    },
+    {
+      "name": "first_name",
+      "type": "VARCHAR(100)",
+      "nullable": true
+    },
+    {
+      "name": "last_name",
+      "type": "VARCHAR(100)",
+      "nullable": true
+    },
+    {
+      "name": "created_at",
+      "type": "TIMESTAMP",
+      "nullable": false,
+      "default": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "updated_at",
+      "type": "TIMESTAMP",
+      "nullable": false,
+      "default": "CURRENT_TIMESTAMP"
+    }
+  ],
+  "indexes": [
+    {
+      "name": "idx_email",
+      "columns": ["email"],
+      "unique": true
+    },
+    {
+      "name": "idx_username",
+      "columns": ["username"],
+      "unique": true
+    }
+  ]
+}
