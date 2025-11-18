@@ -21,7 +21,8 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "sass": "^1.94.0",
-    "zustand": "^5.0.8"
+    "zustand": "^5.0.8",
+    "typeorm": "^0.3.27"
   },
   "devDependencies": {
     "babel-plugin-react-compiler": "1.0.0",
