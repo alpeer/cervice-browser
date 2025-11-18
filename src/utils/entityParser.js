@@ -1,65 +1,127 @@
 /**
  * Parse entity schema files and analyze relationships
+ * Supports both JSON and JS module exports (TypeORM EntitySchema format)
  */
 
 /**
- * Detect relation type from column definition
- * @param {Object} column - Column definition
- * @returns {string|null} Relation type or null
+ * Extract EntitySchema from JS module content
+ * @param {string} jsContent - JS file content
+ * @returns {Object|null} Extracted schema object or null
  */
-function detectRelationType(column) {
-  const type = column.type?.toLowerCase() || '';
-  const name = column.name?.toLowerCase() || '';
+function extractEntitySchemaFromJS(jsContent) {
+  try {
+    // Remove import statements and extract the EntitySchema argument
+    const entitySchemaMatch = jsContent.match(/new\s+EntitySchema\s*\(\s*(\{[\s\S]*?\})\s*\)/);
 
-  // Check for foreign key indicators
-  if (name.endsWith('_id') || name.endsWith('id') || column.foreignKey) {
-    return 'many-to-one'; // Default for FK
+    if (!entitySchemaMatch) {
+      return null;
+    }
+
+    // Extract the schema object
+    let schemaStr = entitySchemaMatch[1];
+
+    // Convert JS object notation to JSON
+    // Handle unquoted keys
+    schemaStr = schemaStr.replace(/(\w+):/g, '"$1":');
+    // Handle single quotes to double quotes
+    schemaStr = schemaStr.replace(/'/g, '"');
+    // Handle trailing commas
+    schemaStr = schemaStr.replace(/,(\s*[}\]])/g, '$1');
+
+    return JSON.parse(schemaStr);
+  } catch (error) {
+    console.error('Failed to extract EntitySchema from JS:', error);
+    return null;
   }
-
-  return null;
 }
 
 /**
- * Extract referenced entity and column from foreign key definition
- * @param {Object} column - Column definition
- * @param {string} columnName - Name of the column
- * @returns {Object|null} Reference info or null
+ * Normalize column definition to internal format
+ * @param {string} colName - Column name
+ * @param {Object} colDef - Column definition
+ * @returns {Object} Normalized column definition
  */
-function extractReference(column, columnName) {
-  // Check explicit foreignKey definition
-  if (column.foreignKey) {
-    return {
-      entity: column.foreignKey.entity || column.foreignKey.table,
-      column: column.foreignKey.column || 'id',
-      onDelete: column.foreignKey.onDelete,
-      onUpdate: column.foreignKey.onUpdate,
-    };
+function normalizeColumn(colName, colDef) {
+  // Handle TypeORM 'generated' property
+  let autoIncrement = false;
+  if (colDef.generated === true || colDef.generated === 'increment') {
+    autoIncrement = true;
   }
 
-  // Try to infer from column name (e.g., user_id -> User.id)
-  if (columnName.endsWith('_id')) {
-    const entityName = columnName.slice(0, -3);
-    const capitalizedEntity = entityName.charAt(0).toUpperCase() + entityName.slice(1);
-    return {
-      entity: capitalizedEntity,
-      column: 'id',
-      onDelete: null,
-      onUpdate: null,
-    };
+  // Build type string with length/precision if available
+  let typeStr = colDef.type;
+  if (colDef.length) {
+    typeStr += `(${colDef.length})`;
+  } else if (colDef.precision && colDef.scale) {
+    typeStr += `(${colDef.precision},${colDef.scale})`;
   }
 
-  if (columnName.endsWith('Id') && columnName.length > 2) {
-    const entityName = columnName.slice(0, -2);
-    const capitalizedEntity = entityName.charAt(0).toUpperCase() + entityName.slice(1);
-    return {
-      entity: capitalizedEntity,
-      column: 'id',
-      onDelete: null,
-      onUpdate: null,
-    };
+  // Handle enum type
+  if (colDef.enum && Array.isArray(colDef.enum)) {
+    typeStr = `enum(${colDef.enum.join(',')})`;
   }
 
-  return null;
+  return {
+    name: colName,
+    type: typeStr,
+    nullable: colDef.nullable !== false, // Default to true
+    unique: colDef.unique || false,
+    primaryKey: colDef.primaryKey || colDef.primary || false,
+    autoIncrement: autoIncrement || colDef.autoIncrement || colDef.auto || false,
+    default: colDef.default,
+  };
+}
+
+/**
+ * Parse TypeORM relations object
+ * @param {Object} relations - Relations object from EntitySchema
+ * @param {string} entityName - Name of the entity
+ * @returns {Array} Array of relation objects
+ */
+function parseTypeORMRelations(relations, entityName) {
+  if (!relations || typeof relations !== 'object') {
+    return [];
+  }
+
+  const parsedRelations = [];
+
+  Object.entries(relations).forEach(([relationName, relationDef]) => {
+    // Skip one-to-many and inverse relations (we only track many-to-one and many-to-many)
+    if (relationDef.type === 'one-to-many') {
+      return; // Skip - this is the inverse side
+    }
+
+    // Extract join column name
+    let fromColumn = null;
+    if (relationDef.joinColumn && relationDef.joinColumn.name) {
+      fromColumn = relationDef.joinColumn.name;
+    } else if (relationDef.type === 'many-to-one') {
+      // Infer from relation name (e.g., 'user' -> 'user_id')
+      fromColumn = `${relationName}_id`;
+    }
+
+    // Determine relation type for our system
+    let relationType = 'many-to-one';
+    if (relationDef.type === 'many-to-many') {
+      relationType = 'many-to-many';
+    } else if (relationDef.type === 'one-to-one') {
+      relationType = 'one-to-one';
+    }
+
+    if (fromColumn) {
+      parsedRelations.push({
+        type: relationType,
+        fromEntity: entityName,
+        fromColumn: fromColumn,
+        toEntity: relationDef.target,
+        toColumn: 'id', // Default to id
+        onDelete: relationDef.onDelete,
+        onUpdate: relationDef.onUpdate,
+      });
+    }
+  });
+
+  return parsedRelations;
 }
 
 /**
@@ -69,77 +131,24 @@ function extractReference(column, columnName) {
  * @returns {Object} Parsed entity
  */
 export function parseEntitySchema(schema, fileName) {
-  const entityName = schema.name || schema.tableName || fileName.replace(/\.(js|json)$/, '');
+  const entityName = schema.name || schema.tableName || fileName.replace(/\.(entity\.)?(js|json)$/, '');
 
   const columns = [];
   const indexes = [];
-  const relations = [];
+  let relations = [];
 
-  // Parse columns
-  if (schema.columns && Array.isArray(schema.columns)) {
-    schema.columns.forEach((col) => {
-      const columnDef = {
-        name: col.name,
-        type: col.type,
-        nullable: col.nullable !== false, // Default to true
-        unique: col.unique || false,
-        primaryKey: col.primaryKey || col.primary || false,
-        autoIncrement: col.autoIncrement || col.auto || false,
-        default: col.default,
-      };
-
-      columns.push(columnDef);
-
-      // Check for relations
-      const reference = extractReference(col, col.name);
-      if (reference) {
-        relations.push({
-          type: 'many-to-one',
-          fromEntity: entityName,
-          fromColumn: col.name,
-          toEntity: reference.entity,
-          toColumn: reference.column,
-          onDelete: reference.onDelete,
-          onUpdate: reference.onUpdate,
-        });
-      }
-    });
-  } else if (schema.columns && typeof schema.columns === 'object') {
-    // Handle object-style column definitions
+  // Parse columns (TypeORM uses object-style columns)
+  if (schema.columns && typeof schema.columns === 'object') {
     Object.entries(schema.columns).forEach(([colName, colDef]) => {
-      const columnDef = {
-        name: colName,
-        type: typeof colDef === 'string' ? colDef : colDef.type,
-        nullable: colDef.nullable !== false,
-        unique: colDef.unique || false,
-        primaryKey: colDef.primaryKey || colDef.primary || false,
-        autoIncrement: colDef.autoIncrement || colDef.auto || false,
-        default: colDef.default,
-      };
-
+      const columnDef = normalizeColumn(colName, typeof colDef === 'string' ? { type: colDef } : colDef);
       columns.push(columnDef);
-
-      // Check for relations
-      if (typeof colDef === 'object') {
-        const reference = extractReference(colDef, colName);
-        if (reference) {
-          relations.push({
-            type: 'many-to-one',
-            fromEntity: entityName,
-            fromColumn: colName,
-            toEntity: reference.entity,
-            toColumn: reference.column,
-            onDelete: reference.onDelete,
-            onUpdate: reference.onUpdate,
-          });
-        }
-      }
     });
   }
 
-  // Parse indexes
-  if (schema.indexes && Array.isArray(schema.indexes)) {
-    schema.indexes.forEach((idx) => {
+  // Parse indices (TypeORM uses 'indices' not 'indexes')
+  const indexSource = schema.indices || schema.indexes;
+  if (indexSource && Array.isArray(indexSource)) {
+    indexSource.forEach((idx) => {
       indexes.push({
         name: idx.name,
         columns: Array.isArray(idx.columns) ? idx.columns : [idx.column],
@@ -149,19 +158,25 @@ export function parseEntitySchema(schema, fileName) {
     });
   }
 
-  // Parse explicit relations (many-to-many, one-to-one)
-  if (schema.relations && Array.isArray(schema.relations)) {
-    schema.relations.forEach((rel) => {
-      relations.push({
-        type: rel.type || 'many-to-one',
-        fromEntity: entityName,
-        fromColumn: rel.fromColumn || rel.column,
-        toEntity: rel.toEntity || rel.entity,
-        toColumn: rel.toColumn || 'id',
-        onDelete: rel.onDelete,
-        onUpdate: rel.onUpdate,
+  // Parse relations
+  if (schema.relations) {
+    if (typeof schema.relations === 'object' && !Array.isArray(schema.relations)) {
+      // TypeORM format (object with relation definitions)
+      relations = parseTypeORMRelations(schema.relations, entityName);
+    } else if (Array.isArray(schema.relations)) {
+      // Legacy array format
+      schema.relations.forEach((rel) => {
+        relations.push({
+          type: rel.type || 'many-to-one',
+          fromEntity: entityName,
+          fromColumn: rel.fromColumn || rel.column,
+          toEntity: rel.toEntity || rel.entity,
+          toColumn: rel.toColumn || 'id',
+          onDelete: rel.onDelete,
+          onUpdate: rel.onUpdate,
+        });
       });
-    });
+    }
   }
 
   return {
@@ -187,11 +202,17 @@ export function parseEntities(files) {
     try {
       let schema;
 
-      // Parse JSON or JS module
-      if (typeof content === 'string') {
-        schema = JSON.parse(content);
+      // Determine if this is a JS or JSON file
+      if (name.endsWith('.js')) {
+        // Try to extract EntitySchema from JS module
+        schema = extractEntitySchemaFromJS(content);
+        if (!schema) {
+          console.warn(`Could not extract EntitySchema from ${name}`);
+          return;
+        }
       } else {
-        schema = content;
+        // Parse as JSON
+        schema = typeof content === 'string' ? JSON.parse(content) : content;
       }
 
       const entity = parseEntitySchema(schema, name);
@@ -219,6 +240,7 @@ export function parseEntities(files) {
  */
 function analyzeRelations(relations, entities) {
   const enhanced = [];
+  const seen = new Set(); // Prevent duplicate relations
 
   relations.forEach((rel) => {
     const fromEntity = entities[rel.fromEntity];
@@ -243,10 +265,18 @@ function analyzeRelations(relations, entities) {
       }
     }
 
+    const relationId = `${rel.fromEntity}.${rel.fromColumn}-${rel.toEntity}.${rel.toColumn}`;
+
+    // Skip duplicate relations
+    if (seen.has(relationId)) {
+      return;
+    }
+    seen.add(relationId);
+
     enhanced.push({
       ...rel,
       cardinality,
-      id: `${rel.fromEntity}.${rel.fromColumn}-${rel.toEntity}.${rel.toColumn}`,
+      id: relationId,
     });
   });
 
