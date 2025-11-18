@@ -1,4 +1,6 @@
-export default {
+import { EntitySchema } from 'typeorm/entity-schema/EntitySchema.js'
+
+const ProductEntity = new EntitySchema({
   name: 'Product',
   tableName: 'products',
   columns: {
@@ -62,4 +64,6 @@ export default {
       columns: ['category_id']
     }
   ]
-}
+})
+
+export default ProductEntity
