@@ -89,14 +89,26 @@ function parseTypeORMRelations(relations, entityName, existingColumns) {
   const existingColumnNames = new Set(existingColumns.map(c => c.name));
 
   Object.entries(relations).forEach(([relationName, relationDef]) => {
-    // Skip one-to-many and inverse relations (we only track many-to-one and many-to-many)
-    if (relationDef.type === 'one-to-many') {
-      return; // Skip - this is the inverse side
-    }
-
     // Extract join column information
     let fromColumn = null;
     let joinColumnDef = null;
+
+    // Handle one-to-many (inverse side - no join column on this entity)
+    if (relationDef.type === 'one-to-many') {
+      // For one-to-many, the FK is on the target entity, not this one
+      // We still want to track the relation for display purposes
+      // The column referenced is usually 'id' on this entity
+      parsedRelations.push({
+        type: 'one-to-many',
+        fromEntity: entityName,
+        fromColumn: 'id', // This entity's referenced column (usually id)
+        toEntity: relationDef.target,
+        toColumn: relationDef.inverseSide ? `${relationDef.inverseSide}_id` : `${entityName.toLowerCase()}_id`,
+        relationName: relationName,
+        isInverse: true, // Mark as inverse relation (for UI display)
+      });
+      return; // Don't generate join column for one-to-many
+    }
 
     // Check for joinTable (many-to-many)
     if (relationDef.joinTable) {
@@ -315,6 +327,8 @@ function analyzeRelations(relations, entities) {
 
     if (rel.type === 'one-to-one') {
       cardinality = '1:1';
+    } else if (rel.type === 'one-to-many') {
+      cardinality = '1:n'; // One source entity to many target entities
     } else if (rel.type === 'many-to-many') {
       cardinality = 'n:n';
     } else {
@@ -382,24 +396,26 @@ export function entitiesToNodes(entities, relations = []) {
  * @returns {Array} React Flow edges
  */
 export function relationsToEdges(relations) {
-  return relations.map((rel) => ({
-    id: rel.id,
-    source: rel.fromEntity,
-    target: rel.toEntity,
-    sourceHandle: `${rel.fromEntity}-${rel.fromColumn}-source`, // Specific column handle
-    targetHandle: `${rel.toEntity}-${rel.toColumn}-target`,   // Specific column handle
-    type: 'smoothstep',
-    animated: false,
-    label: rel.cardinality,
-    data: {
-      fromColumn: rel.fromColumn,
-      toColumn: rel.toColumn,
-      onDelete: rel.onDelete,
-      onUpdate: rel.onUpdate,
-      cardinality: rel.cardinality,
-    },
-    markerEnd: {
-      type: 'arrowclosed',
-    },
-  }));
+  return relations
+    .filter(rel => !rel.isInverse) // Skip inverse (one-to-many) relations - arrow created from other side
+    .map((rel) => ({
+      id: rel.id,
+      source: rel.fromEntity,
+      target: rel.toEntity,
+      sourceHandle: `${rel.fromEntity}-${rel.fromColumn}-source`, // Specific column handle
+      targetHandle: `${rel.toEntity}-${rel.toColumn}-target`,   // Specific column handle
+      type: 'smoothstep',
+      animated: false,
+      label: rel.cardinality,
+      data: {
+        fromColumn: rel.fromColumn,
+        toColumn: rel.toColumn,
+        onDelete: rel.onDelete,
+        onUpdate: rel.onUpdate,
+        cardinality: rel.cardinality,
+      },
+      markerEnd: {
+        type: 'arrowclosed',
+      },
+    }));
 }
