@@ -311,7 +311,7 @@ function analyzeRelations(relations, entities) {
     }
 
     // Determine cardinality
-    let cardinality = '1:n'; // Default many-to-one
+    let cardinality = 'n:1'; // Default many-to-one (many source entities to one target)
 
     if (rel.type === 'one-to-one') {
       cardinality = '1:1';
