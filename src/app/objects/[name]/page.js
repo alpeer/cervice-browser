@@ -7,6 +7,7 @@ import { getSchemas, getDomainModels } from '@/utils/specUtils';
 import AppLayout from '@/components/AppLayout/AppLayout';
 import ObjectDetail from '@/components/ObjectDetail/ObjectDetail';
 import Button from '@/ui/Button/Button';
+import styles from '../../page.module.scss';
 
 export default function ObjectDetailPage() {
   const router = useRouter();
@@ -110,10 +111,10 @@ export default function ObjectDetailPage() {
   if (!selectedObject) {
     return (
       <AppLayout showSidebars>
-        <div className="content__header">
-          <div className="spec-info">
+        <div className={styles.header}>
+          <div className={styles.specInfo}>
             <h1>{spec.info?.title || 'OpenAPI Specification'}</h1>
-            <p className="spec-info__version">
+            <p className={styles.version}>
               {isSwagger ? 'Swagger' : 'OpenAPI'} {version}
               {schemaVersion && version !== schemaVersion && ` (validated against ${schemaVersion})`}
             </p>
@@ -122,8 +123,8 @@ export default function ObjectDetailPage() {
             Change Spec
           </Button>
         </div>
-        <div className="empty-state">
-          <div className="empty-state__content">
+        <div className={styles.emptyState}>
+          <div className={styles.content}>
             <h2>Object not found: {objectName}</h2>
             <p>This object doesn't exist in the specification</p>
           </div>
@@ -134,15 +135,15 @@ export default function ObjectDetailPage() {
 
   return (
     <AppLayout showSidebars>
-      <div className="content__header">
-        <div className="spec-info">
+      <div className={styles.header}>
+        <div className={styles.specInfo}>
           <h1>{spec.info?.title || 'OpenAPI Specification'}</h1>
-          <p className="spec-info__version">
+          <p className={styles.version}>
             {isSwagger ? 'Swagger' : 'OpenAPI'} {version}
             {schemaVersion && version !== schemaVersion && ` (validated against ${schemaVersion})`}
           </p>
           {spec.info?.description && (
-            <p className="spec-info__description">{spec.info.description}</p>
+            <p className={styles.description}>{spec.info.description}</p>
           )}
         </div>
         <Button onClick={clearSpec} variant="outlined" size="small">

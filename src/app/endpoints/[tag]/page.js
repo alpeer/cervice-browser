@@ -8,6 +8,7 @@ import { groupByTags, getMethodColor } from '@/components/EndpointsList/helpers/
 import AppLayout from '@/components/AppLayout/AppLayout'
 import EndpointDetail from '@/components/EndpointDetail/EndpointDetail'
 import Button from '@/ui/Button/Button'
+import styles from '../../page.module.scss'
 
 export default function EndpointsTagPage() {
   const router = useRouter()
@@ -138,8 +139,8 @@ export default function EndpointsTagPage() {
             Change Spec
           </Button>
         </div> */}
-        <div className="empty-state">
-          <div className="empty-state__content">
+        <div className={styles.emptyState}>
+          <div className={styles.content}>
             <h2>No endpoints found for tag: {tag}</h2>
             <p>This tag doesn't contain any endpoints</p>
           </div>
@@ -169,8 +170,8 @@ export default function EndpointsTagPage() {
       {selectedEndpoint ? (
         <EndpointDetail endpoint={selectedEndpoint} spec={spec} isSwagger={isSwagger} />
       ) : (
-        <div className="empty-state">
-          <div className="empty-state__content">
+        <div className={styles.emptyState}>
+          <div className={styles.content}>
             <h2>Select an endpoint from the sidebar</h2>
             <p>Choose an endpoint to view its details</p>
           </div>
