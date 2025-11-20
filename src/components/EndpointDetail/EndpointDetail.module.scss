@@ -1,0 +1,277 @@
+.endpointDetail {
+  padding: 24px;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e0e0e0;
+    position: sticky;
+    top: 0px;
+    background-color: #FFF;
+    padding-top: 17px;
+    z-index: 100;
+  }
+
+  .title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    h2 {
+      margin: 0;
+      font-size: 24px;
+      font-family: 'Courier New', monospace;
+      color: #333;
+    }
+  }
+
+  .summary {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 24px;
+    padding: 12px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+  }
+
+  .description {
+    margin-bottom: 24px;
+
+    h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    p {
+      color: #666;
+      line-height: 1.6;
+    }
+  }
+
+  .section {
+    margin-bottom: 32px;
+
+    h3 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: #333;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 8px;
+    }
+  }
+
+  .method {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .methodGet {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+
+  .methodPost {
+    background-color: #e8f5e9;
+    color: #388e3c;
+  }
+
+  .methodPut {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
+
+  .methodDelete {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+
+  .methodPatch {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+  }
+
+  .methodDefault {
+    background-color: #f5f5f5;
+    color: #666;
+  }
+
+  .deprecatedBadge {
+    padding: 6px 12px;
+    background-color: #ff9800;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+  }
+
+  .paramsTable,
+  .schemaTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 16px;
+
+    th {
+      text-align: left;
+      padding: 10px;
+      background-color: #f5f5f5;
+      border-bottom: 2px solid #e0e0e0;
+      font-weight: 600;
+    }
+
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: top;
+    }
+
+    code {
+      background-color: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 12px;
+    }
+  }
+
+  .enumValues {
+    font-size: 11px;
+    color: #666;
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  .responseSection {
+    margin-bottom: 24px;
+    padding: 16px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .responseCode {
+    font-size: 16px;
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .statusBadge {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+  }
+
+  .status2xx {
+    background-color: #e8f5e9;
+    color: #388e3c;
+  }
+
+  .status3xx {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+
+  .status4xx {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
+
+  .status5xx {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background-color: #e0e0e0;
+    color: #666;
+  }
+
+  .badgeRequired {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+
+  .badgeOptional {
+    background-color: #f5f5f5;
+    color: #999;
+  }
+
+  .schemaCode {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    padding: 16px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 12px;
+    line-height: 1.5;
+
+    code {
+      background: none;
+      padding: 0;
+      color: inherit;
+    }
+  }
+
+  .noSchema {
+    color: #999;
+    font-style: italic;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .testForm {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 20px;
+  }
+
+  .testFormNote {
+    color: #666;
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+
+  .testFormExample {
+    h4 {
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #333;
+    }
+  }
+
+  .curlExample {
+    background-color: #2d2d2d;
+    color: #f8f8f2;
+    padding: 16px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 12px;
+    line-height: 1.6;
+
+    code {
+      background: none;
+      padding: 0;
+      color: inherit;
+    }
+  }
+}

@@ -1,0 +1,308 @@
+.entityNode {
+  background-color: #fff;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  min-width: 280px;
+  max-width: 350px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+
+  &.focused {
+    border-color: #ff9800;
+    box-shadow: 0 4px 16px rgba(255, 152, 0, 0.3);
+    transform: scale(1.02);
+  }
+
+  .header {
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border-radius: 6px 6px 0 0;
+    cursor: move;
+    user-select: none;
+  }
+
+  .title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .tableName {
+    font-size: 11px;
+    opacity: 0.85;
+    margin-left: 6px;
+  }
+
+  .description {
+    padding: 10px 16px;
+    font-size: 12px;
+    color: #666;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #e0e0e0;
+    line-height: 1.4;
+  }
+
+  .columns {
+    padding: 12px 0;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .empty {
+    padding: 16px;
+    text-align: center;
+    color: #999;
+    font-size: 12px;
+  }
+
+  .column {
+    position: relative;
+    padding: 8px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.15s;
+
+    &:hover {
+      background-color: #fafafa;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .columnHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .columnTags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .relations {
+    border-top: 2px solid #e0e0e0;
+    background-color: #fafafa;
+  }
+
+  .relationsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s;
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+  }
+
+  .relationsTitle {
+    font-size: 12px;
+    font-weight: 700;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .relationsContent {
+    padding: 0 16px 12px;
+  }
+
+  .relation {
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .footer {
+    padding: 10px 16px;
+    background-color: #fafafa;
+    border-top: 2px solid #e0e0e0;
+    border-radius: 0 0 6px 6px;
+  }
+
+  .footerTitle {
+    font-size: 11px;
+    font-weight: 700;
+    color: #666;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  .indexes {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .index {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 6px 8px;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: help;
+    transition: all 0.15s;
+
+    &:hover {
+      background-color: #f5f5f5;
+      border-color: #ccc;
+    }
+  }
+}
+
+.entityNodeSelected {
+  border-color: #1976d2;
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.3);
+}
+
+// Column handles (connection points)
+.columnHandle {
+  width: 8px !important;
+  height: 8px !important;
+  border: 2px solid #1976d2 !important;
+  background-color: #fff !important;
+  opacity: 0 !important;
+  transition: opacity 0.2s !important;
+}
+
+.columnHandleSource {
+  right: -4px !important;
+}
+
+.columnHandleTarget {
+  left: -4px !important;
+}
+
+.entityNode:hover .columnHandle,
+.entityNode.focused .columnHandle {
+  opacity: 1 !important;
+}
+
+.columnName {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.columnType {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #666;
+  background-color: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.columnTag {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.columnTagPk {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.columnTagUnique {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.columnTagFk {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.columnTagNull {
+  background-color: #f5f5f5;
+  color: #757575;
+}
+
+.columnTagAuto {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.relationName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.relationDetails {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.relationTarget {
+  font-size: 12px;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.relationType {
+  font-size: 11px;
+  padding: 2px 6px;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.relationActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.relationAction {
+  font-size: 10px;
+  padding: 2px 6px;
+  background-color: #fff3e0;
+  color: #f57c00;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+}
+
+.indexName {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #555;
+  flex: 1;
+}
+
+.indexBadge {
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.indexBadgeUnique {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}

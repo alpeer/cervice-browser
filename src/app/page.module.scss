@@ -1,0 +1,141 @@
+.appContainer {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  background-color: #fff;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 24px;
+    background-color: #fafafa;
+    border-bottom: 1px solid #e0e0e0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+}
+
+.specInfo {
+  h1 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    color: #333;
+  }
+
+  .version {
+    margin: 0 0 8px 0;
+    color: #666;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .description {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+    max-width: 600px;
+  }
+}
+
+.validationErrors {
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+
+  h2 {
+    color: #d32f2f;
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: #666;
+    margin-bottom: 16px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+
+    li {
+      padding: 12px;
+      margin-bottom: 8px;
+      background-color: #ffebee;
+      border-left: 4px solid #d32f2f;
+      border-radius: 4px;
+
+      strong {
+        color: #c62828;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+      }
+    }
+  }
+
+  button {
+    margin-top: 16px;
+  }
+}
+
+.specUploaderContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding: 40px 0;
+}
+
+.orDivider {
+  position: relative;
+  width: 200px;
+  text-align: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background-color: #e0e0e0;
+  }
+
+  span {
+    position: relative;
+    background-color: #fff;
+    padding: 0 16px;
+    color: #999;
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 100px);
+  padding: 24px;
+
+  .content {
+    text-align: center;
+    max-width: 500px;
+
+    h2 {
+      margin-bottom: 12px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    p {
+      color: #999;
+      font-size: 15px;
+    }
+  }
+}

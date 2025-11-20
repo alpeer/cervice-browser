@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
-  reactCompiler: true,
-};
+  // Acknowledge Turbopack usage
+  turbopack: {},
 
-export default nextConfig;
+  // Disable CSS optimization in development
+  experimental: {
+    optimizeCss: false,
+  },
+}
+
+export default nextConfig
