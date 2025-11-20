@@ -23,6 +23,18 @@ export const useSpecState = create((set) => ({
   relations: [],       // Array of relation objects
   focusedEntity: null, // Entity name that's being hovered in sidebar
 
+  // Sidebar configuration (programmatic)
+  sidebarConfig: {
+    primary: {
+      items: [], // Array of { id, label, collapsible, active, children: [] }
+    },
+    secondary: {
+      title: null,
+      subtitle: null,
+      items: [], // Array of { id, label, subtitle, onClick, onHover, selected }
+    },
+  },
+
   setSpec: (spec, version, schemaVersion, isSwagger, isValid, errors = []) =>
     set({ spec, version, schemaVersion, isSwagger, isValid, errors }),
 
@@ -38,6 +50,10 @@ export const useSpecState = create((set) => ({
       selectedTag: null,
       selectedItem: null,
       openSections: { endpoints: true },
+      sidebarConfig: {
+        primary: { items: [] },
+        secondary: { title: null, subtitle: null, items: [] },
+      },
     }),
 
   setSelectedSection: (section) =>
@@ -66,4 +82,29 @@ export const useSpecState = create((set) => ({
 
   setFocusedEntity: (entityName) =>
     set({ focusedEntity: entityName }),
+
+  // Sidebar configuration management
+  setSidebarPrimary: (items) =>
+    set((state) => ({
+      sidebarConfig: {
+        ...state.sidebarConfig,
+        primary: { items },
+      },
+    })),
+
+  setSidebarSecondary: (title, subtitle, items) =>
+    set((state) => ({
+      sidebarConfig: {
+        ...state.sidebarConfig,
+        secondary: { title, subtitle, items },
+      },
+    })),
+
+  clearSidebarSecondary: () =>
+    set((state) => ({
+      sidebarConfig: {
+        ...state.sidebarConfig,
+        secondary: { title: null, subtitle: null, items: [] },
+      },
+    })),
 }));
