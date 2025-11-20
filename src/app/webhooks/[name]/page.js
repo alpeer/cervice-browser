@@ -150,7 +150,7 @@ export default function WebhookDetailPage() {
           Change Spec
         </Button>
       </div>
-      <WebhookDetail webhook={selectedWebhook} />
+      <WebhookDetail webhook={selectedWebhook} spec={spec} isSwagger={isSwagger} />
     </AppLayout>
   );
 }
