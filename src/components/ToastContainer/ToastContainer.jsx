@@ -1,33 +1,33 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
-import { useSpecState } from '@/hooks/useSpecState';
-import './ToastContainer.scss';
+import { useEffect } from 'react'
+import Snackbar from '@mui/material/Snackbar'
+import Alert from '@mui/material/Alert'
+import { useSpecState } from '@/hooks/useSpecState'
+import styles from './ToastContainer.module.scss'
 
 export default function ToastContainer() {
-  const { toasts, removeToast } = useSpecState();
+  const { toasts, removeToast } = useSpecState()
 
   useEffect(() => {
     // Auto-remove toasts after their duration
     toasts.forEach((toast) => {
       if (toast.duration && toast.duration > 0) {
         const timer = setTimeout(() => {
-          removeToast(toast.id);
-        }, toast.duration);
+          removeToast(toast.id)
+        }, toast.duration)
 
-        return () => clearTimeout(timer);
+        return () => clearTimeout(timer)
       }
-    });
-  }, [toasts, removeToast]);
+    })
+  }, [toasts, removeToast])
 
   const handleClose = (toastId) => {
-    removeToast(toastId);
-  };
+    removeToast(toastId)
+  }
 
   return (
-    <div className="toast-container">
+    <div className={styles.toastContainer}>
       {toasts.map((toast, index) => (
         <Snackbar
           key={toast.id}
@@ -49,5 +49,5 @@ export default function ToastContainer() {
         </Snackbar>
       ))}
     </div>
-  );
+  )
 }

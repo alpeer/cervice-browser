@@ -1,30 +1,31 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSpecState } from '@/hooks/useSpecState';
-import SpecUploader from '@/components/SpecUploader/SpecUploader';
-import ToastContainer from '@/components/ToastContainer/ToastContainer';
-import Button from '@/ui/Button/Button';
-import './page.scss';
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import clsx from 'clsx'
+import { useSpecState } from '@/hooks/useSpecState'
+import SpecUploader from '@/components/SpecUploader/SpecUploader'
+import ToastContainer from '@/components/ToastContainer/ToastContainer'
+import Button from '@/ui/Button/Button'
+import styles from './page.module.scss'
 
 export default function Home() {
-  const router = useRouter();
-  const { spec, isValid } = useSpecState();
+  const router = useRouter()
+  const { spec, isValid } = useSpecState()
 
   // Redirect if spec is loaded
   useEffect(() => {
     if (spec && isValid) {
-      router.push('/endpoints');
+      router.push('/endpoints')
     }
-  }, [spec, isValid, router]);
+  }, [spec, isValid, router])
 
   return (
-    <div className="app-container">
-      <main className="content">
-        <div className="spec-uploader-container">
+    <div className={styles.appContainer}>
+      <main className={styles.content}>
+        <div className={styles.specUploaderContainer}>
           <SpecUploader />
-          <div className="or-divider">
+          <div className={styles.orDivider}>
             <span>OR</span>
           </div>
           <Button
@@ -38,5 +39,5 @@ export default function Home() {
       </main>
       <ToastContainer />
     </div>
-  );
+  )
 }

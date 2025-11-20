@@ -6,6 +6,7 @@ import { useSpecState } from '@/hooks/useSpecState';
 import { getSchemas, getDomainModels } from '@/utils/specUtils';
 import AppLayout from '@/components/AppLayout/AppLayout';
 import Button from '@/ui/Button/Button';
+import styles from '../page.module.scss';
 
 export default function ObjectsPage() {
   const router = useRouter();
@@ -91,23 +92,23 @@ export default function ObjectsPage() {
 
   return (
     <AppLayout showSidebars>
-      <div className="content__header">
-        <div className="spec-info">
+      <div className={styles.header}>
+        <div className={styles.specInfo}>
           <h1>{spec.info?.title || 'OpenAPI Specification'}</h1>
-          <p className="spec-info__version">
+          <p className={styles.version}>
             {isSwagger ? 'Swagger' : 'OpenAPI'} {version}
             {schemaVersion && version !== schemaVersion && ` (validated against ${schemaVersion})`}
           </p>
           {spec.info?.description && (
-            <p className="spec-info__description">{spec.info.description}</p>
+            <p className={styles.description}>{spec.info.description}</p>
           )}
         </div>
         <Button onClick={clearSpec} variant="outlined" size="small">
           Change Spec
         </Button>
       </div>
-      <div className="empty-state">
-        <div className="empty-state__content">
+      <div className={styles.emptyState}>
+        <div className={styles.content}>
           <h2>Select an object from the sidebar</h2>
           <p>Choose an object to view its schema details</p>
         </div>

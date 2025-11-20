@@ -1,0 +1,122 @@
+.webhooksList {
+  padding: 24px;
+
+  h2 {
+    margin-bottom: 8px;
+  }
+
+  .info {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .empty {
+    text-align: center;
+    color: #999;
+    padding: 40px;
+  }
+
+  .note {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #999;
+  }
+}
+
+.webhookDetails {
+  .method {
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .methodGet {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+
+  .methodPost {
+    background-color: #e8f5e9;
+    color: #388e3c;
+  }
+
+  .methodPut {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
+
+  .methodDelete {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+
+  .methodPatch {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+  }
+}
+
+.webhookMethod {
+  padding: 16px 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.webhookMethodHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.webhookMethodSummary {
+  font-weight: 500;
+  color: #333;
+}
+
+.webhookMethodDescription {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.webhookMethodRequest,
+.webhookMethodResponses {
+  margin-top: 16px;
+
+  h4 {
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #333;
+  }
+
+  p {
+    font-size: 13px;
+    color: #666;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+
+    li {
+      padding: 4px 0;
+      font-size: 13px;
+      color: #666;
+
+      strong {
+        color: #333;
+      }
+    }
+  }
+}

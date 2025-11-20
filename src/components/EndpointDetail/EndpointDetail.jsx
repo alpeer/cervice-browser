@@ -4,7 +4,8 @@ import { useMemo } from 'react';
 import { getMethodColor } from '@/components/EndpointsList/helpers/groupByTags';
 import { resolveSchema, buildExample } from '@/utils/schemaResolver';
 import Collapsible from '@/ui/Collapsible/Collapsible';
-import './EndpointDetail.scss';
+import clsx from 'clsx';
+import styles from './EndpointDetail.module.scss';
 
 export default function EndpointDetail({ endpoint, spec, isSwagger }) {
   const { path, method, config } = endpoint;
@@ -66,7 +67,7 @@ export default function EndpointDetail({ endpoint, spec, isSwagger }) {
     }
 
     return (
-      <table className="schema-table">
+      <table className={styles.schemaTable}>
         <thead>
           <tr>
             <th>Property</th>
@@ -87,16 +88,16 @@ export default function EndpointDetail({ endpoint, spec, isSwagger }) {
                 <td>
                   {type}{format}
                   {propSchema.enum && (
-                    <div className="enum-values">
+                    <div className={styles.enumValues}>
                       enum: [{propSchema.enum.join(', ')}]
                     </div>
                   )}
                 </td>
                 <td>
                   {isRequired ? (
-                    <span className="badge badge--required">Yes</span>
+                    <span className={clsx(styles.badge, styles.badgeRequired)}>Yes</span>
                   ) : (
-                    <span className="badge badge--optional">No</span>
+                    <span className={clsx(styles.badge, styles.badgeOptional)}>No</span>
                   )}
                 </td>
                 <td>{propSchema.description || '-'}</td>
@@ -109,25 +110,25 @@ export default function EndpointDetail({ endpoint, spec, isSwagger }) {
   };
 
   return (
-    <div className="endpoint-detail">
-      <div className="endpoint-detail__header">
-        <div className="endpoint-detail__title">
-          <span className={`method method--${getMethodColor(method)}`}>
+    <div className={styles.endpointDetail}>
+      <div className={styles.header}>
+        <div className={styles.title}>
+          <span className={clsx(styles.method, styles[`method${getMethodColor(method).charAt(0).toUpperCase() + getMethodColor(method).slice(1)}`])}>
             {method}
           </span>
           <h2>{path}</h2>
         </div>
         {config.deprecated && (
-          <span className="deprecated-badge">DEPRECATED</span>
+          <span className={styles.deprecatedBadge}>DEPRECATED</span>
         )}
       </div>
 
       {config.summary && (
-        <p className="endpoint-detail__summary">{config.summary}</p>
+        <p className={styles.summary}>{config.summary}</p>
       )}
 
       {config.description && (
-        <div className="endpoint-detail__description">
+        <div className={styles.description}>
           <h3>Description</h3>
           <p>{config.description}</p>
         </div>
@@ -135,9 +136,9 @@ export default function EndpointDetail({ endpoint, spec, isSwagger }) {
 
       {/* Parameters */}
       {config.parameters && config.parameters.length > 0 && (
-        <div className="endpoint-detail__section">
+        <div className={styles.section}>
           <h3>Parameters</h3>
-          <table className="params-table">
+          <table className={styles.paramsTable}>
             <thead>
               <tr>
                 <th>Name</th>
@@ -151,13 +152,13 @@ export default function EndpointDetail({ endpoint, spec, isSwagger }) {
               {config.parameters.filter(p => p.in !== 'body').map((param, idx) => (
                 <tr key={idx}>
                   <td><code>{param.name}</code></td>
-                  <td><span className="badge">{param.in}</span></td>
+                  <td><span className={styles.badge}>{param.in}</span></td>
                   <td>{param.type || param.schema?.type || 'N/A'}</td>
                   <td>
                     {param.required ? (
-                      <span className="badge badge--required">Yes</span>
+                      <span className={clsx(styles.badge, styles.badgeRequired)}>Yes</span>
                     ) : (
-                      <span className="badge badge--optional">No</span>
+                      <span className={clsx(styles.badge, styles.badgeOptional)}>No</span>
                     )}
                   </td>
                   <td>{param.description || '-'}</td>
@@ -170,18 +171,18 @@ export default function EndpointDetail({ endpoint, spec, isSwagger }) {
 
       {/* Request Body Schema */}
       {requestSchema && (
-        <div className="endpoint-detail__section">
+        <div className={styles.section}>
           <h3>Request Body</h3>
           <Collapsible title="Schema Structure" defaultOpen={true}>
             {renderSchemaTable(requestSchema)}
           </Collapsible>
           <Collapsible title="Example JSON" defaultOpen={false}>
-            <pre className="schema-code">
+            <pre className={styles.schemaCode}>
               <code>{JSON.stringify(buildExample(requestSchema), null, 2)}</code>
             </pre>
           </Collapsible>
           <Collapsible title="Full Schema (JSON)" defaultOpen={false}>
-            <pre className="schema-code">
+            <pre className={styles.schemaCode}>
               <code>{JSON.stringify(requestSchema, null, 2)}</code>
             </pre>
           </Collapsible>
@@ -190,12 +191,12 @@ export default function EndpointDetail({ endpoint, spec, isSwagger }) {
 
       {/* Responses */}
       {Object.keys(responseSchemas).length > 0 && (
-        <div className="endpoint-detail__section">
+        <div className={styles.section}>
           <h3>Responses</h3>
           {Object.entries(responseSchemas).map(([code, response]) => (
-            <div key={code} className="response-section">
-              <h4 className="response-code">
-                <span className={`status-badge status-${code[0]}xx`}>{code}</span>
+            <div key={code} className={styles.responseSection}>
+              <h4 className={styles.responseCode}>
+                <span className={clsx(styles.statusBadge, styles[`status${code[0]}xx`])}>{code}</span>
                 {response.description}
               </h4>
               {response.schema ? (
@@ -204,18 +205,18 @@ export default function EndpointDetail({ endpoint, spec, isSwagger }) {
                     {renderSchemaTable(response.schema)}
                   </Collapsible>
                   <Collapsible title="Example JSON" defaultOpen={false}>
-                    <pre className="schema-code">
+                    <pre className={styles.schemaCode}>
                       <code>{JSON.stringify(buildExample(response.schema), null, 2)}</code>
                     </pre>
                   </Collapsible>
                   <Collapsible title="Full Schema (JSON)" defaultOpen={false}>
-                    <pre className="schema-code">
+                    <pre className={styles.schemaCode}>
                       <code>{JSON.stringify(response.schema, null, 2)}</code>
                     </pre>
                   </Collapsible>
                 </>
               ) : (
-                <p className="no-schema">No response schema defined</p>
+                <p className={styles.noSchema}>No response schema defined</p>
               )}
             </div>
           ))}
@@ -223,16 +224,16 @@ export default function EndpointDetail({ endpoint, spec, isSwagger }) {
       )}
 
       {/* Test Form */}
-      <div className="endpoint-detail__section">
+      <div className={styles.section}>
         <h3>Test Endpoint</h3>
-        <div className="test-form">
-          <p className="test-form__note">
+        <div className={styles.testForm}>
+          <p className={styles.testFormNote}>
             Testing functionality will be implemented in a future update.
             For now, use tools like Postman or curl to test this endpoint.
           </p>
-          <div className="test-form__example">
+          <div className={styles.testFormExample}>
             <h4>Example with curl:</h4>
-            <pre className="curl-example">
+            <pre className={styles.curlExample}>
               <code>
                 curl -X {method} \{'\n'}
                   "{path}" \{'\n'}

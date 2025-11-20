@@ -1,9 +1,9 @@
-.collapsible {
+.container {
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   margin-bottom: 8px;
 
-  &__header {
+  .header {
     display: flex;
     align-items: center;
     padding: 8px 12px;
@@ -17,21 +17,21 @@
     }
   }
 
-  &__icon {
+  .icon {
     transition: transform 0.2s;
-
-    &--rotated {
-      transform: rotate(180deg);
-    }
   }
 
-  &__title {
+  .iconRotated {
+    transform: rotate(180deg);
+  }
+
+  .title {
     margin-left: 8px;
     font-weight: 500;
     font-size: 14px;
   }
 
-  &__content {
+  .content {
     padding: 16px;
     border-top: 1px solid #e0e0e0;
   }

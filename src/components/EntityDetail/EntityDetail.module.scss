@@ -1,10 +1,10 @@
-.entity-detail {
-  display: flex;
+.container {
   flex-direction: column;
-  height: 100%;
   width: 100%;
+  height: 100%;
+  display: flex;
 
-  &__header {
+  .header {
     padding: 20px 24px;
     background-color: #fff;
     border-bottom: 2px solid #e0e0e0;
@@ -20,28 +20,28 @@
     }
   }
 
-  &__info {
+  .info {
     flex: 1;
   }
 
-  &__stats {
+  .stats {
     display: flex;
     gap: 24px;
     margin-top: 8px;
   }
 
-  &__actions {
+  .actions {
     display: flex;
     gap: 12px;
   }
 
-  &__canvas {
+  .canvas {
     flex: 1;
     position: relative;
     background-color: #fafafa;
   }
 
-  &__empty {
+  .empty {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -63,7 +63,7 @@
   }
 }
 
-.stat-item {
+.statItem {
   font-size: 13px;
   color: #666;
 

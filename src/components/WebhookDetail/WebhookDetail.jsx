@@ -1,10 +1,11 @@
 'use client';
 
 import { useMemo } from 'react';
+import clsx from 'clsx';
 import { getMethodColor } from '@/components/EndpointsList/helpers/groupByTags';
 import { resolveSchema } from '@/utils/schemaResolver';
 import Collapsible from '@/ui/Collapsible/Collapsible';
-import './WebhookDetail.scss';
+import styles from './WebhookDetail.module.scss';
 
 export default function WebhookDetail({ webhook, spec, isSwagger }) {
   const { name, config } = webhook;
@@ -17,14 +18,14 @@ export default function WebhookDetail({ webhook, spec, isSwagger }) {
   const renderSchemaTable = (schema) => {
     if (!schema || !schema.properties) {
       return (
-        <div className="schema-empty">
+        <div className={styles.schemaEmpty}>
           <p>No properties defined</p>
         </div>
       );
     }
 
     return (
-      <table className="schema-table">
+      <table className={styles.schemaTable}>
         <thead>
           <tr>
             <th>Property</th>
@@ -45,16 +46,16 @@ export default function WebhookDetail({ webhook, spec, isSwagger }) {
                 <td>
                   {type}{format}
                   {propSchema.enum && (
-                    <div className="enum-values">
+                    <div className={styles.enumValues}>
                       enum: [{propSchema.enum.join(', ')}]
                     </div>
                   )}
                 </td>
                 <td>
                   {isRequired ? (
-                    <span className="badge badge--required">Yes</span>
+                    <span className={clsx(styles.badge, styles.badgeRequired)}>Yes</span>
                   ) : (
-                    <span className="badge badge--optional">No</span>
+                    <span className={clsx(styles.badge, styles.badgeOptional)}>No</span>
                   )}
                 </td>
                 <td>{propSchema.description || '-'}</td>
@@ -67,8 +68,8 @@ export default function WebhookDetail({ webhook, spec, isSwagger }) {
   };
 
   return (
-    <div className="webhook-detail">
-      <div className="webhook-detail__header">
+    <div className={styles.container}>
+      <div className={styles.header}>
         <h2>{name}</h2>
       </div>
 
@@ -125,9 +126,9 @@ export default function WebhookDetail({ webhook, spec, isSwagger }) {
         }, [details, spec, isSwagger]);
 
         return (
-          <div key={method} className="webhook-method">
-            <div className="webhook-method__header">
-              <span className={`method method--${getMethodColor(method.toUpperCase())}`}>
+          <div key={method} className={styles.webhookMethod}>
+            <div className={styles.webhookMethodHeader}>
+              <span className={clsx(styles.method, styles[`method${getMethodColor(method.toUpperCase()).charAt(0).toUpperCase()}${getMethodColor(method.toUpperCase()).slice(1)}`])}>
                 {method.toUpperCase()}
               </span>
               {details.summary && (
@@ -136,16 +137,16 @@ export default function WebhookDetail({ webhook, spec, isSwagger }) {
             </div>
 
             {details.description && (
-              <p className="webhook-method__description">
+              <p className={styles.webhookMethodDescription}>
                 {details.description}
               </p>
             )}
 
             {/* Request Body */}
             {details.requestBody && (
-              <div className="webhook-method__section">
+              <div className={styles.webhookMethodSection}>
                 <h4>Request Body</h4>
-                <p className="description">{details.requestBody.description || 'No description'}</p>
+                <p className={styles.description}>{details.requestBody.description || 'No description'}</p>
                 {requestSchema && (
                   <Collapsible title="Schema" defaultOpen={true}>
                     {renderSchemaTable(requestSchema)}
@@ -153,7 +154,7 @@ export default function WebhookDetail({ webhook, spec, isSwagger }) {
                 )}
                 {requestSchema && (
                   <Collapsible title="Raw Schema (JSON)" defaultOpen={false}>
-                    <pre className="schema-code">
+                    <pre className={styles.schemaCode}>
                       <code>{JSON.stringify(requestSchema, null, 2)}</code>
                     </pre>
                   </Collapsible>
@@ -163,15 +164,15 @@ export default function WebhookDetail({ webhook, spec, isSwagger }) {
 
             {/* Responses */}
             {details.responses && Object.keys(details.responses).length > 0 && (
-              <div className="webhook-method__section">
+              <div className={styles.webhookMethodSection}>
                 <h4>Responses</h4>
                 {Object.entries(responseSchemas).map(([code, responseData]) => (
-                  <div key={code} className="response-item">
-                    <div className="response-header">
-                      <span className={`status-code status-code--${code.charAt(0)}xx`}>
+                  <div key={code} className={styles.responseItem}>
+                    <div className={styles.responseHeader}>
+                      <span className={clsx(styles.statusCode, styles[`statusCode${code.charAt(0)}xx`])}>
                         {code}
                       </span>
-                      <span className="response-description">
+                      <span className={styles.responseDescription}>
                         {responseData.description || 'No description'}
                       </span>
                     </div>
@@ -182,7 +183,7 @@ export default function WebhookDetail({ webhook, spec, isSwagger }) {
                     )}
                     {responseData.schema && (
                       <Collapsible title="Raw Schema (JSON)" defaultOpen={false}>
-                        <pre className="schema-code">
+                        <pre className={styles.schemaCode}>
                           <code>{JSON.stringify(responseData.schema, null, 2)}</code>
                         </pre>
                       </Collapsible>

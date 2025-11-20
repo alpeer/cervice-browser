@@ -1,4 +1,4 @@
-.entity-node {
+.entityNode {
   background-color: #fff;
   border: 2px solid #ccc;
   border-radius: 8px;
@@ -13,12 +13,7 @@
     transform: scale(1.02);
   }
 
-  &--selected {
-    border-color: #1976d2;
-    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.3);
-  }
-
-  &__header {
+  .header {
     padding: 12px 16px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
@@ -27,19 +22,19 @@
     user-select: none;
   }
 
-  &__title {
+  .title {
     margin: 0;
     font-size: 16px;
     font-weight: 700;
   }
 
-  &__table-name {
+  .tableName {
     font-size: 11px;
     opacity: 0.85;
     margin-left: 6px;
   }
 
-  &__description {
+  .description {
     padding: 10px 16px;
     font-size: 12px;
     color: #666;
@@ -48,20 +43,20 @@
     line-height: 1.4;
   }
 
-  &__columns {
+  .columns {
     padding: 12px 0;
     max-height: 400px;
     overflow-y: auto;
   }
 
-  &__empty {
+  .empty {
     padding: 16px;
     text-align: center;
     color: #999;
     font-size: 12px;
   }
 
-  &__column {
+  .column {
     position: relative;
     padding: 8px 16px;
     border-bottom: 1px solid #f0f0f0;
@@ -76,25 +71,25 @@
     }
   }
 
-  &__column-header {
+  .columnHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 4px;
   }
 
-  &__column-tags {
+  .columnTags {
     display: flex;
     gap: 4px;
     flex-wrap: wrap;
   }
 
-  &__relations {
+  .relations {
     border-top: 2px solid #e0e0e0;
     background-color: #fafafa;
   }
 
-  &__relations-header {
+  .relationsHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -108,7 +103,7 @@
     }
   }
 
-  &__relations-title {
+  .relationsTitle {
     font-size: 12px;
     font-weight: 700;
     color: #666;
@@ -116,11 +111,11 @@
     letter-spacing: 0.5px;
   }
 
-  &__relations-content {
+  .relationsContent {
     padding: 0 16px 12px;
   }
 
-  &__relation {
+  .relation {
     padding: 8px 0;
     border-bottom: 1px solid #e0e0e0;
 
@@ -129,14 +124,14 @@
     }
   }
 
-  &__footer {
+  .footer {
     padding: 10px 16px;
     background-color: #fafafa;
     border-top: 2px solid #e0e0e0;
     border-radius: 0 0 6px 6px;
   }
 
-  &__footer-title {
+  .footerTitle {
     font-size: 11px;
     font-weight: 700;
     color: #666;
@@ -145,13 +140,13 @@
     letter-spacing: 0.5px;
   }
 
-  &__indexes {
+  .indexes {
     display: flex;
     flex-direction: column;
     gap: 6px;
   }
 
-  &__index {
+  .index {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -171,37 +166,42 @@
   }
 }
 
+.entityNodeSelected {
+  border-color: #1976d2;
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.3);
+}
+
 // Column handles (connection points)
-.column-handle {
+.columnHandle {
   width: 8px !important;
   height: 8px !important;
   border: 2px solid #1976d2 !important;
   background-color: #fff !important;
   opacity: 0 !important;
   transition: opacity 0.2s !important;
-
-  &--source {
-    right: -4px !important;
-  }
-
-  &--target {
-    left: -4px !important;
-  }
 }
 
-.entity-node:hover .column-handle,
-.entity-node.focused .column-handle {
+.columnHandleSource {
+  right: -4px !important;
+}
+
+.columnHandleTarget {
+  left: -4px !important;
+}
+
+.entityNode:hover .columnHandle,
+.entityNode.focused .columnHandle {
   opacity: 1 !important;
 }
 
-.column-name {
+.columnName {
   font-family: 'Courier New', monospace;
   font-size: 13px;
   font-weight: 600;
   color: #333;
 }
 
-.column-type {
+.columnType {
   font-family: 'Courier New', monospace;
   font-size: 11px;
   color: #666;
@@ -210,60 +210,60 @@
   border-radius: 3px;
 }
 
-.column-tag {
+.columnTag {
   padding: 2px 6px;
   border-radius: 3px;
   font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
-
-  &--pk {
-    background-color: #e3f2fd;
-    color: #1976d2;
-  }
-
-  &--unique {
-    background-color: #f3e5f5;
-    color: #7b1fa2;
-  }
-
-  &--fk {
-    background-color: #fff3e0;
-    color: #f57c00;
-  }
-
-  &--null {
-    background-color: #f5f5f5;
-    color: #757575;
-  }
-
-  &--auto {
-    background-color: #e8f5e9;
-    color: #388e3c;
-  }
 }
 
-.relation-name {
+.columnTagPk {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.columnTagUnique {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.columnTagFk {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.columnTagNull {
+  background-color: #f5f5f5;
+  color: #757575;
+}
+
+.columnTagAuto {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.relationName {
   font-size: 13px;
   font-weight: 600;
   color: #333;
   margin-bottom: 4px;
 }
 
-.relation-details {
+.relationDetails {
   display: flex;
   gap: 8px;
   align-items: center;
   margin-bottom: 4px;
 }
 
-.relation-target {
+.relationTarget {
   font-size: 12px;
   color: #1976d2;
   font-weight: 500;
 }
 
-.relation-type {
+.relationType {
   font-size: 11px;
   padding: 2px 6px;
   background-color: #e3f2fd;
@@ -272,14 +272,14 @@
   font-weight: 600;
 }
 
-.relation-actions {
+.relationActions {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 4px;
 }
 
-.relation-action {
+.relationAction {
   font-size: 10px;
   padding: 2px 6px;
   background-color: #fff3e0;
@@ -288,21 +288,21 @@
   font-family: 'Courier New', monospace;
 }
 
-.index-name {
+.indexName {
   font-family: 'Courier New', monospace;
   font-weight: 600;
   color: #555;
   flex: 1;
 }
 
-.index-badge {
+.indexBadge {
   padding: 2px 5px;
   border-radius: 3px;
   font-size: 9px;
   font-weight: 700;
+}
 
-  &--unique {
-    background-color: #f3e5f5;
-    color: #7b1fa2;
-  }
+.indexBadgeUnique {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
 }

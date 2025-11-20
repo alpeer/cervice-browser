@@ -1,29 +1,30 @@
 'use client';
 
+import clsx from 'clsx';
 import Collapsible from '@/ui/Collapsible/Collapsible';
-import './ObjectDetail.scss';
+import styles from './ObjectDetail.module.scss';
 
 export default function ObjectDetail({ object }) {
   const { label, schema } = object;
 
   return (
-    <div className="object-detail">
-      <div className="object-detail__header">
+    <div className={styles.objectDetail}>
+      <div className={styles.header}>
         <h2>{label}</h2>
         {schema.type && (
-          <span className="type-badge">{schema.type}</span>
+          <span className={styles.typeBadge}>{schema.type}</span>
         )}
       </div>
 
       {schema.description && (
-        <p className="object-detail__description">{schema.description}</p>
+        <p className={styles.description}>{schema.description}</p>
       )}
 
       {/* Properties */}
       {schema.properties && (
-        <div className="object-detail__section">
+        <div className={styles.section}>
           <h3>Properties</h3>
-          <table className="properties-table">
+          <table className={styles.propertiesTable}>
             <thead>
               <tr>
                 <th>Name</th>
@@ -41,9 +42,9 @@ export default function ObjectDetail({ object }) {
                   <td>{propDetails.format || '-'}</td>
                   <td>
                     {schema.required?.includes(propName) ? (
-                      <span className="badge badge--required">Yes</span>
+                      <span className={clsx(styles.badge, styles.badgeRequired)}>Yes</span>
                     ) : (
-                      <span className="badge badge--optional">No</span>
+                      <span className={clsx(styles.badge, styles.badgeOptional)}>No</span>
                     )}
                   </td>
                   <td>{propDetails.description || '-'}</td>
@@ -56,9 +57,9 @@ export default function ObjectDetail({ object }) {
 
       {/* Enum values */}
       {schema.enum && (
-        <div className="object-detail__section">
+        <div className={styles.section}>
           <h3>Enum Values</h3>
-          <ul className="enum-list">
+          <ul className={styles.enumList}>
             {schema.enum.map((value, idx) => (
               <li key={idx}><code>{JSON.stringify(value)}</code></li>
             ))}
@@ -67,9 +68,9 @@ export default function ObjectDetail({ object }) {
       )}
 
       {/* Full Schema */}
-      <div className="object-detail__section">
+      <div className={styles.section}>
         <Collapsible title="Full Schema (JSON)">
-          <pre className="schema-code">
+          <pre className={styles.schemaCode}>
             <code>{JSON.stringify(schema, null, 2)}</code>
           </pre>
         </Collapsible>

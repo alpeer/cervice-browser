@@ -1,10 +1,11 @@
 'use client'
 
+import clsx from 'clsx'
 import { useSpecState } from '@/hooks/useSpecState'
 import SidebarPrimary from '@/components/SidebarPrimary/SidebarPrimary'
 import SidebarSecondary from '@/components/SidebarSecondary/SidebarSecondary'
 import ToastContainer from '@/components/ToastContainer/ToastContainer'
-import './AppLayout.scss'
+import styles from './AppLayout.module.scss'
 
 export default function AppLayout({ children, showSidebars = false }) {
   const { spec, isValid, selectedSection } = useSpecState()
@@ -13,10 +14,10 @@ export default function AppLayout({ children, showSidebars = false }) {
   const shouldShowSidebars = showSidebars || selectedSection === 'entities' || (spec && isValid)
 
   return (
-    <div className="app-container">
+    <div className={styles.appContainer}>
       {shouldShowSidebars && <SidebarPrimary />}
       {selectedSection && shouldShowSidebars && <SidebarSecondary />}
-      <main className="content">
+      <main className={styles.content}>
         {children}
       </main>
       <ToastContainer />

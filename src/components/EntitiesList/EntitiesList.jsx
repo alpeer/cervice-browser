@@ -1,19 +1,20 @@
 'use client';
 
-import './EntitiesList.scss';
+import clsx from 'clsx';
+import styles from './EntitiesList.module.scss';
 
 export default function EntitiesList() {
   return (
-    <div className="entities-list">
+    <div className={styles.entitiesList}>
       <h2>Database Entities</h2>
-      <p className="entities-list__info">
+      <p className={styles.info}>
         Define custom database entities for your application
       </p>
 
-      <div className="entities-list__empty">
-        <div className="entities-list__empty-content">
+      <div className={styles.empty}>
+        <div className={styles.emptyContent}>
           <svg
-            className="entities-list__empty-icon"
+            className={styles.emptyIcon}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

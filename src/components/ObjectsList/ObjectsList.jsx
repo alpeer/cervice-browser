@@ -1,7 +1,8 @@
 'use client';
 
+import clsx from 'clsx';
 import Collapsible from '@/ui/Collapsible/Collapsible';
-import './ObjectsList.scss';
+import styles from './ObjectsList.module.scss';
 
 export default function ObjectsList({ spec }) {
   const schemas = spec?.components?.schemas || {};
@@ -9,38 +10,38 @@ export default function ObjectsList({ spec }) {
 
   if (schemaNames.length === 0) {
     return (
-      <div className="objects-list">
-        <p className="objects-list__empty">No schemas found</p>
+      <div className={styles.objectsList}>
+        <p className={styles.empty}>No schemas found</p>
       </div>
     );
   }
 
   return (
-    <div className="objects-list">
+    <div className={styles.objectsList}>
       <h2>Schemas</h2>
-      <p className="objects-list__info">Total: {schemaNames.length} schemas</p>
+      <p className={styles.info}>Total: {schemaNames.length} schemas</p>
 
       {schemaNames.map((name) => {
         const schema = schemas[name];
         return (
           <Collapsible key={name} title={name}>
-            <div className="schema-details">
+            <div className={styles.schemaDetails}>
               {schema.type && (
-                <p className="schema-details__type">
+                <p className={styles.schemaDetailsType}>
                   <strong>Type:</strong> {schema.type}
                 </p>
               )}
 
               {schema.description && (
-                <p className="schema-details__description">
+                <p className={styles.schemaDetailsDescription}>
                   {schema.description}
                 </p>
               )}
 
               {schema.properties && (
-                <div className="schema-details__properties">
+                <div className={styles.schemaDetailsProperties}>
                   <h4>Properties:</h4>
-                  <table className="properties-table">
+                  <table className={styles.propertiesTable}>
                     <thead>
                       <tr>
                         <th>Name</th>
@@ -58,9 +59,9 @@ export default function ObjectsList({ spec }) {
                           <td>{propDetails.type || 'N/A'}</td>
                           <td>
                             {schema.required?.includes(propName) ? (
-                              <span className="badge badge--required">Yes</span>
+                              <span className={clsx(styles.badge, styles.badgeRequired)}>Yes</span>
                             ) : (
-                              <span className="badge badge--optional">No</span>
+                              <span className={clsx(styles.badge, styles.badgeOptional)}>No</span>
                             )}
                           </td>
                           <td>{propDetails.description || '-'}</td>
@@ -72,7 +73,7 @@ export default function ObjectsList({ spec }) {
               )}
 
               {schema.enum && (
-                <div className="schema-details__enum">
+                <div className={styles.schemaDetailsEnum}>
                   <h4>Enum values:</h4>
                   <ul>
                     {schema.enum.map((value, idx) => (

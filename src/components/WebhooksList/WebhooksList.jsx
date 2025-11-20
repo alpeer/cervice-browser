@@ -1,8 +1,9 @@
 'use client';
 
+import clsx from 'clsx';
 import Collapsible from '@/ui/Collapsible/Collapsible';
 import { getMethodColor } from '@/components/EndpointsList/helpers/groupByTags';
-import './WebhooksList.scss';
+import styles from './WebhooksList.module.scss';
 
 export default function WebhooksList({ spec }) {
   const webhooks = spec?.webhooks || {};
@@ -10,10 +11,10 @@ export default function WebhooksList({ spec }) {
 
   if (webhookNames.length === 0) {
     return (
-      <div className="webhooks-list">
-        <div className="webhooks-list__empty">
+      <div className={styles.webhooksList}>
+        <div className={styles.empty}>
           <p>No webhooks defined</p>
-          <p className="webhooks-list__note">
+          <p className={styles.note}>
             Webhooks are supported in OpenAPI 3.1.0 and later
           </p>
         </div>
@@ -22,9 +23,9 @@ export default function WebhooksList({ spec }) {
   }
 
   return (
-    <div className="webhooks-list">
+    <div className={styles.webhooksList}>
       <h2>Webhooks</h2>
-      <p className="webhooks-list__info">Total: {webhookNames.length} webhooks</p>
+      <p className={styles.info}>Total: {webhookNames.length} webhooks</p>
 
       {webhookNames.map((name) => {
         const webhook = webhooks[name];
@@ -34,35 +35,35 @@ export default function WebhooksList({ spec }) {
 
         return (
           <Collapsible key={name} title={name}>
-            <div className="webhook-details">
+            <div className={styles.webhookDetails}>
               {methods.map((method) => {
                 const details = webhook[method];
                 return (
-                  <div key={method} className="webhook-method">
-                    <div className="webhook-method__header">
-                      <span className={`method method--${getMethodColor(method.toUpperCase())}`}>
+                  <div key={method} className={styles.webhookMethod}>
+                    <div className={styles.webhookMethodHeader}>
+                      <span className={clsx(styles.method, styles[`method${getMethodColor(method.toUpperCase()).charAt(0).toUpperCase() + getMethodColor(method.toUpperCase()).slice(1)}`])}>
                         {method.toUpperCase()}
                       </span>
                       {details.summary && (
-                        <span className="webhook-method__summary">{details.summary}</span>
+                        <span className={styles.webhookMethodSummary}>{details.summary}</span>
                       )}
                     </div>
 
                     {details.description && (
-                      <p className="webhook-method__description">
+                      <p className={styles.webhookMethodDescription}>
                         {details.description}
                       </p>
                     )}
 
                     {details.requestBody && (
-                      <div className="webhook-method__request">
+                      <div className={styles.webhookMethodRequest}>
                         <h4>Request Body</h4>
                         <p>{details.requestBody.description || 'No description'}</p>
                       </div>
                     )}
 
                     {details.responses && (
-                      <div className="webhook-method__responses">
+                      <div className={styles.webhookMethodResponses}>
                         <h4>Responses</h4>
                         <ul>
                           {Object.entries(details.responses).map(([code, response]) => (

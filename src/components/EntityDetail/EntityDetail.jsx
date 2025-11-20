@@ -1,6 +1,7 @@
-'use client';
+'use client'
 
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react'
+import clsx from 'clsx'
 import {
   ReactFlow,
   Background,
@@ -8,19 +9,19 @@ import {
   MiniMap,
   useNodesState,
   useEdgesState,
-} from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
-import Button from '@mui/material/Button';
-import Upload from '@mui/icons-material/Upload';
-import Delete from '@mui/icons-material/Delete';
-import { useSpecState } from '@/hooks/useSpecState';
-import { parseEntities, entitiesToNodes, relationsToEdges } from '@/utils/entityParser';
-import EntityNode from '@/components/EntityNode/EntityNode';
-import './EntityDetail.scss';
+} from '@xyflow/react'
+import '@xyflow/react/dist/style.css'
+import Button from '@mui/material/Button'
+import Upload from '@mui/icons-material/Upload'
+import Delete from '@mui/icons-material/Delete'
+import { useSpecState } from '@/hooks/useSpecState'
+import { parseEntities, entitiesToNodes, relationsToEdges } from '@/utils/entityParser'
+import EntityNode from '@/components/EntityNode/EntityNode'
+import styles from './EntityDetail.module.scss'
 
 const nodeTypes = {
   entityNode: EntityNode,
-};
+}
 
 export default function EntityDetail() {
   const {
@@ -30,32 +31,32 @@ export default function EntityDetail() {
     setEntities,
     clearEntities,
     addToast,
-  } = useSpecState();
+  } = useSpecState()
 
-  const reactFlowInstance = useRef(null);
-  const fileInputRef = useRef(null);
+  const reactFlowInstance = useRef(null)
+  const fileInputRef = useRef(null)
 
   // Convert entities to nodes and edges
   const initialNodes = useMemo(() => {
-    return entitiesToNodes(entities, relations);
-  }, [entities, relations]);
+    return entitiesToNodes(entities, relations)
+  }, [entities, relations])
 
   const initialEdges = useMemo(() => {
-    return relationsToEdges(relations);
-  }, [relations]);
+    return relationsToEdges(relations)
+  }, [relations])
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
   // Update nodes when entities or relations change
   useEffect(() => {
-    setNodes(entitiesToNodes(entities, relations));
-  }, [entities, relations, setNodes]);
+    setNodes(entitiesToNodes(entities, relations))
+  }, [entities, relations, setNodes])
 
   // Update edges when relations change
   useEffect(() => {
-    setEdges(relationsToEdges(relations));
-  }, [relations, setEdges]);
+    setEdges(relationsToEdges(relations))
+  }, [relations, setEdges])
 
   // Apply focused class to entity node when hovering in sidebar
   useEffect(() => {
@@ -65,109 +66,109 @@ export default function EntityDetail() {
           ...node,
           className: node.id === focusedEntity ? 'focused' : '',
         }))
-      );
+      )
     } else {
       setNodes((nds) =>
         nds.map((node) => ({
           ...node,
           className: '',
         }))
-      );
+      )
     }
-  }, [focusedEntity, setNodes]);
+  }, [focusedEntity, setNodes])
 
   const onInit = useCallback((instance) => {
-    reactFlowInstance.current = instance;
-  }, []);
+    reactFlowInstance.current = instance
+  }, [])
 
   const handleFileUpload = async (event) => {
-    const files = Array.from(event.target.files);
-    if (files.length === 0) return;
+    const files = Array.from(event.target.files)
+    if (files.length === 0) return
 
-    const parsedFiles = [];
+    const parsedFiles = []
 
     for (const file of files) {
-      const content = await file.text();
+      const content = await file.text()
       parsedFiles.push({
         name: file.name,
         content,
-      });
+      })
     }
 
     // Parse all entities with validation
-    const { entities: newEntities, relations: newRelations, validationErrors } = await parseEntities(parsedFiles);
+    const { entities: newEntities, relations: newRelations, validationErrors } = await parseEntities(parsedFiles)
 
     // Show validation errors as toasts
     if (validationErrors && validationErrors.length > 0) {
       validationErrors.forEach(({ fileName, error }) => {
-        addToast(`${fileName}: ${error}`, 'error', 8000);
-      });
+        addToast(`${fileName}: ${error}`, 'error', 8000)
+      })
     }
 
     // Show success toast if entities were loaded
-    const loadedCount = Object.keys(newEntities).length;
+    const loadedCount = Object.keys(newEntities).length
     if (loadedCount > 0) {
-      addToast(`Successfully loaded ${loadedCount} entity schema${loadedCount > 1 ? 's' : ''}`, 'success', 4000);
-      setEntities(newEntities, newRelations);
+      addToast(`Successfully loaded ${loadedCount} entity schema${loadedCount > 1 ? 's' : ''}`, 'success', 4000)
+      setEntities(newEntities, newRelations)
     } else if (validationErrors.length === 0) {
-      addToast('No valid entity schemas found in uploaded files', 'warning', 5000);
+      addToast('No valid entity schemas found in uploaded files', 'warning', 5000)
     }
 
     // Reset file input
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = ''
     }
-  };
+  }
 
   const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
+    fileInputRef.current?.click()
+  }
 
   const handleClearAll = () => {
     if (confirm('Are you sure you want to clear all entities?')) {
-      clearEntities();
+      clearEntities()
     }
-  };
+  }
 
-  const entityCount = Object.keys(entities).length;
-  const relationCount = relations.length;
+  const entityCount = Object.keys(entities).length
+  const relationCount = relations.length
 
   // Center a specific entity in viewport
   const centerEntity = useCallback((entityName) => {
     if (reactFlowInstance.current) {
-      const node = nodes.find((n) => n.id === entityName);
+      const node = nodes.find((n) => n.id === entityName)
       if (node) {
         reactFlowInstance.current.setCenter(
           node.position.x + 150, // Approximate center of node
           node.position.y + 175,
           { zoom: 1, duration: 800 }
-        );
+        )
       }
     }
-  }, [nodes]);
+  }, [nodes])
 
   // Expose centerEntity function to parent components via ref
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      window.centerEntityInFlow = centerEntity;
+      window.centerEntityInFlow = centerEntity
     }
-  }, [centerEntity]);
+  }, [centerEntity])
 
   return (
-    <div className="entity-detail">
-      <div className="entity-detail__header">
-        <div className="entity-detail__info">
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <div className={styles.info}>
           <h2>Entity Relationship Diagram</h2>
-          <div className="entity-detail__stats">
-            <span className="stat-item">
+          <div className={styles.stats}>
+            <span className={styles.statItem}>
               <strong>{entityCount}</strong> Entities
             </span>
-            <span className="stat-item">
+            <span className={styles.statItem}>
               <strong>{relationCount}</strong> Relations
             </span>
           </div>
         </div>
-        <div className="entity-detail__actions">
+        <div className={styles.actions}>
           <input
             ref={fileInputRef}
             type="file"
@@ -196,9 +197,9 @@ export default function EntityDetail() {
         </div>
       </div>
 
-      <div className="entity-detail__canvas">
+      <div className={styles.canvas}>
         {entityCount === 0 ? (
-          <div className="entity-detail__empty">
+          <div className={styles.empty}>
             <Upload style={{ fontSize: 64, color: '#ccc', marginBottom: 16 }} />
             <h3>No Entities Loaded</h3>
             <p>Upload entity schema files (JSON or JS) to visualize relationships</p>
@@ -230,8 +231,8 @@ export default function EntityDetail() {
             <Controls />
             <MiniMap
               nodeColor={(node) => {
-                if (node.className === 'focused') return '#ff9800';
-                return '#667eea';
+                if (node.className === 'focused') return '#ff9800'
+                return '#667eea'
               }}
               nodeStrokeWidth={3}
             />
@@ -239,5 +240,5 @@ export default function EntityDetail() {
         )}
       </div>
     </div>
-  );
+  )
 }

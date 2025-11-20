@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import clsx from 'clsx';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@/ui/Button/Button';
 import { useSpecState } from '@/hooks/useSpecState';
 import { parseUploadedSpec } from './helpers/parseSpec';
 import { validateSpec } from './helpers/validateSpec';
-import './SpecUploader.scss';
+import styles from './SpecUploader.module.scss';
 
 export default function SpecUploader() {
   const [isLoading, setIsLoading] = useState(false);
@@ -55,8 +56,8 @@ export default function SpecUploader() {
   };
 
   return (
-    <div className="spec-uploader">
-      <div className="spec-uploader__content">
+    <div className={styles.container}>
+      <div className={styles.content}>
         <h2>Upload OpenAPI Specification</h2>
         <p>Upload your OpenAPI spec (JSON or YAML format)</p>
 
@@ -81,7 +82,7 @@ export default function SpecUploader() {
         </label>
 
         {error && (
-          <div className="spec-uploader__error">
+          <div className={styles.error}>
             <p>{error}</p>
           </div>
         )}

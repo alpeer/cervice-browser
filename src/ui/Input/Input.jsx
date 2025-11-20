@@ -1,7 +1,8 @@
 'use client';
 
 import TextField from '@mui/material/TextField';
-import './Input.scss';
+import clsx from 'clsx';
+import styles from './Input.module.scss';
 
 export default function Input({
   label,
@@ -27,7 +28,7 @@ export default function Input({
       rows={rows}
       fullWidth={fullWidth}
       type={type}
-      className="custom-input"
+      className={styles.customInput}
       variant="outlined"
     />
   );

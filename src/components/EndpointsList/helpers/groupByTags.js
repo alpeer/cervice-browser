@@ -4,18 +4,18 @@
  * @returns {Object} Grouped endpoints by tag
  */
 export function groupByTags(paths) {
-  const grouped = {};
+  const grouped = {}
 
   Object.entries(paths).forEach(([path, methods]) => {
     Object.entries(methods).forEach(([method, config]) => {
       // Skip non-HTTP methods (like parameters, servers, etc.)
-      const httpMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head', 'trace'];
-      if (!httpMethods.includes(method.toLowerCase())) return;
+      const httpMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head', 'trace']
+      if (!httpMethods.includes(method.toLowerCase())) return
 
-      const tags = config.tags || ['default'];
+      const tags = config.tags || ['default']
 
       tags.forEach(tag => {
-        if (!grouped[tag]) grouped[tag] = [];
+        if (!grouped[tag]) grouped[tag] = []
 
         grouped[tag].push({
           path,
@@ -25,12 +25,12 @@ export function groupByTags(paths) {
           operationId: config.operationId,
           deprecated: config.deprecated || false,
           config, // Include the full config object for EndpointDetail
-        });
-      });
-    });
-  });
+        })
+      })
+    })
+  })
 
-  return grouped;
+  return grouped
 }
 
 /**
@@ -47,6 +47,6 @@ export function getMethodColor(method) {
     PATCH: 'patch',
     OPTIONS: 'options',
     HEAD: 'head',
-  };
-  return colors[method] || 'default';
+  }
+  return colors[method.toUpperCase()] || 'default'
 }

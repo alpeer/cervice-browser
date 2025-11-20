@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import clsx from 'clsx';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
@@ -9,7 +10,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { useSpecState } from '@/hooks/useSpecState';
 import { getSchemas, getPaths, getWebhooks, getDomainModels } from '@/utils/specUtils';
-import './Sidebar.scss';
+import styles from './Sidebar.module.scss';
 
 const menuItems = [
   { id: 'endpoints', label: 'Endpoints' },
@@ -57,39 +58,39 @@ export default function Sidebar() {
   };
 
   return (
-    <nav className="sidebar">
-      <div className="sidebar__header">
+    <nav className={styles.container}>
+      <div className={styles.header}>
         <h3>OpenAPI Viewer</h3>
       </div>
-      <List className="sidebar__list">
+      <List className={styles.list}>
         {menuItems.map((menuItem) => (
           <div key={menuItem.id}>
             <ListItemButton
               onClick={() => handleSectionClick(menuItem.id)}
-              className={`sidebar__item ${openSection === menuItem.id ? 'sidebar__item--active' : ''}`}
+              className={clsx(styles.item, openSection === menuItem.id && styles.itemActive)}
             >
               <ListItemText primary={menuItem.label} />
               {openSection === menuItem.id ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
 
             <Collapse in={openSection === menuItem.id} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding className="sidebar__submenu">
+              <List component="div" disablePadding className={styles.submenu}>
                 {level2Items.length === 0 && openSection === menuItem.id && (
-                  <div className="sidebar__empty">
+                  <div className={styles.empty}>
                     {menuItem.id === 'entities' ? 'No entities defined' : 'No items found'}
                   </div>
                 )}
                 {level2Items.map((item, idx) => (
                   <ListItemButton
                     key={idx}
-                    className={`sidebar__subitem ${selectedItem?.id === item.id ? 'sidebar__subitem--selected' : ''}`}
+                    className={clsx(styles.subitem, selectedItem?.id === item.id && styles.subitemSelected)}
                     onClick={() => handleItemClick(item)}
                   >
                     <ListItemText
                       primary={item.label}
                       secondary={item.subtitle}
-                      primaryTypographyProps={{ className: 'sidebar__subitem-label' }}
-                      secondaryTypographyProps={{ className: 'sidebar__subitem-subtitle' }}
+                      primaryTypographyProps={{ className: styles.subitemLabel }}
+                      secondaryTypographyProps={{ className: styles.subitemSubtitle }}
                     />
                   </ListItemButton>
                 ))}

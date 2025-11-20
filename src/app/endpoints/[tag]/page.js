@@ -126,7 +126,7 @@ export default function EndpointsTagPage() {
   if (endpoints.length === 0) {
     return (
       <AppLayout showSidebars>
-        <div className="content__header">
+        {/* <div className="content__header">
           <div className="spec-info">
             <h1>{spec.info?.title || 'OpenAPI Specification'}</h1>
             <p className="spec-info__version">
@@ -137,7 +137,7 @@ export default function EndpointsTagPage() {
           <Button onClick={clearSpec} variant="outlined" size="small">
             Change Spec
           </Button>
-        </div>
+        </div> */}
         <div className="empty-state">
           <div className="empty-state__content">
             <h2>No endpoints found for tag: {tag}</h2>
@@ -150,7 +150,7 @@ export default function EndpointsTagPage() {
 
   return (
     <AppLayout showSidebars>
-      <div className="content__header">
+      {/* <div className="content__header">
         <div className="spec-info">
           <h1>{spec.info?.title || 'OpenAPI Specification'}</h1>
           <p className="spec-info__version">
@@ -164,7 +164,7 @@ export default function EndpointsTagPage() {
         <Button onClick={clearSpec} variant="outlined" size="small">
           Change Spec
         </Button>
-      </div>
+      </div> */}
 
       {selectedEndpoint ? (
         <EndpointDetail endpoint={selectedEndpoint} spec={spec} isSwagger={isSwagger} />

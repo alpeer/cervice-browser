@@ -1,17 +1,17 @@
-.entities-list {
+.entitiesList {
   padding: 24px;
 
   h2 {
     margin-bottom: 8px;
   }
 
-  &__info {
+  .info {
     color: #666;
     font-size: 14px;
     margin-bottom: 40px;
   }
 
-  &__empty {
+  .empty {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -19,7 +19,7 @@
     padding: 40px;
   }
 
-  &__empty-content {
+  .emptyContent {
     text-align: center;
     max-width: 500px;
 
@@ -37,7 +37,7 @@
     }
   }
 
-  &__empty-icon {
+  .emptyIcon {
     width: 80px;
     height: 80px;
     color: #ccc;

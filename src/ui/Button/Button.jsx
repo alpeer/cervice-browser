@@ -1,7 +1,8 @@
-'use client';
+'use client'
 
-import Button as MuiButton from '@mui/material/Button';
-import './Button.scss';
+import MuiButton from '@mui/material/Button'
+import clsx from 'clsx'
+import styles from './Button.module.scss'
 
 export default function Button({
   children,
@@ -25,9 +26,9 @@ export default function Button({
       type={type}
       size={size}
       component={component}
-      className={`custom-button ${className}`}
+      className={clsx(styles.customButton, className)}
     >
       {children}
     </MuiButton>
-  );
+  )
 }

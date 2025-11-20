@@ -1,11 +1,11 @@
-.spec-uploader {
+.container {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
   padding: 24px;
 
-  &__content {
+  .content {
     max-width: 500px;
     width: 100%;
     text-align: center;
@@ -21,7 +21,7 @@
     }
   }
 
-  &__error {
+  .error {
     margin-top: 16px;
     padding: 12px;
     background-color: #ffebee;

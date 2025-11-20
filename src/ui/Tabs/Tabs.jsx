@@ -2,14 +2,15 @@
 
 import Tabs as MuiTabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import './Tabs.scss';
+import clsx from 'clsx';
+import styles from './Tabs.module.scss';
 
 export default function Tabs({ value, onChange, tabs }) {
   return (
     <MuiTabs
       value={value}
       onChange={onChange}
-      className="custom-tabs"
+      className={styles.customTabs}
     >
       {tabs.map((tab) => (
         <Tab

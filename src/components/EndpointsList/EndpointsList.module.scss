@@ -1,30 +1,30 @@
-.endpoints-list {
+.endpointsList {
   padding: 24px;
 
   h2 {
     margin-bottom: 8px;
   }
 
-  &__info {
+  .info {
     color: #666;
     font-size: 14px;
     margin-bottom: 24px;
   }
 
-  &__empty {
+  .empty {
     text-align: center;
     color: #999;
     padding: 40px;
   }
 
-  &__items {
+  .items {
     list-style: none;
     padding: 0;
     margin: 0;
   }
 }
 
-.endpoint-item {
+.endpointItem {
   padding: 12px;
   border-bottom: 1px solid #f0f0f0;
   transition: background-color 0.2s;
@@ -32,16 +32,17 @@
   &:hover {
     background-color: #fafafa;
   }
+}
 
-  &--deprecated {
-    opacity: 0.6;
-  }
+.endpointItemDeprecated {
+  opacity: 0.6;
+}
 
-  &__main {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+.endpointItemMain {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
   .method {
     padding: 4px 8px;
@@ -50,36 +51,36 @@
     font-weight: 600;
     min-width: 60px;
     text-align: center;
+  }
 
-    &--get {
-      background-color: #e3f2fd;
-      color: #1976d2;
-    }
+  .methodGet {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
 
-    &--post {
-      background-color: #e8f5e9;
-      color: #388e3c;
-    }
+  .methodPost {
+    background-color: #e8f5e9;
+    color: #388e3c;
+  }
 
-    &--put {
-      background-color: #fff3e0;
-      color: #f57c00;
-    }
+  .methodPut {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
 
-    &--delete {
-      background-color: #ffebee;
-      color: #d32f2f;
-    }
+  .methodDelete {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
 
-    &--patch {
-      background-color: #f3e5f5;
-      color: #7b1fa2;
-    }
+  .methodPatch {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+  }
 
-    &--default {
-      background-color: #f5f5f5;
-      color: #666;
-    }
+  .methodDefault {
+    background-color: #f5f5f5;
+    color: #666;
   }
 
   .path {
@@ -95,7 +96,7 @@
     color: #666;
   }
 
-  .deprecated-badge {
+  .deprecatedBadge {
     display: inline-block;
     margin-left: 76px;
     margin-top: 4px;

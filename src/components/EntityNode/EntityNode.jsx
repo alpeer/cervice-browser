@@ -6,7 +6,8 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
-import './EntityNode.scss';
+import clsx from 'clsx';
+import styles from './EntityNode.module.scss';
 
 /**
  * Custom React Flow node for Entity display
@@ -40,50 +41,50 @@ export default function EntityNode({ data, selected }) {
     const tags = [];
 
     if (column.primaryKey) {
-      tags.push(<span key="pk" className="column-tag column-tag--pk">PK</span>);
+      tags.push(<span key="pk" className={clsx(styles.columnTag, styles.columnTagPk)}>PK</span>);
     }
     if (column.unique) {
-      tags.push(<span key="unique" className="column-tag column-tag--unique">UNIQUE</span>);
+      tags.push(<span key="unique" className={clsx(styles.columnTag, styles.columnTagUnique)}>UNIQUE</span>);
     }
     if (column.nullable) {
-      tags.push(<span key="null" className="column-tag column-tag--null">NULL</span>);
+      tags.push(<span key="null" className={clsx(styles.columnTag, styles.columnTagNull)}>NULL</span>);
     }
     if (column.autoIncrement) {
-      tags.push(<span key="auto" className="column-tag column-tag--auto">AUTO</span>);
+      tags.push(<span key="auto" className={clsx(styles.columnTag, styles.columnTagAuto)}>AUTO</span>);
     }
     if (column.generated) {
-      tags.push(<span key="fk" className="column-tag column-tag--fk">FK</span>);
+      tags.push(<span key="fk" className={clsx(styles.columnTag, styles.columnTagFk)}>FK</span>);
     }
 
     return tags;
   };
 
   return (
-    <div className={`entity-node ${selected ? 'entity-node--selected' : ''}`}>
+    <div className={clsx(styles.entityNode, { [styles.entityNodeSelected]: selected })}>
       {/* Header - Draggable */}
-      <div className="entity-node__header drag-handle">
-        <h4 className="entity-node__title">{name}</h4>
+      <div className={clsx(styles.header, 'drag-handle')}>
+        <h4 className={styles.title}>{name}</h4>
         {tableName !== name && (
-          <span className="entity-node__table-name">({tableName})</span>
+          <span className={styles.tableName}>({tableName})</span>
         )}
       </div>
 
       {/* Description */}
       {description && (
-        <div className="entity-node__description">{description}</div>
+        <div className={styles.description}>{description}</div>
       )}
 
       {/* Columns */}
-      <div className="entity-node__columns">
+      <div className={styles.columns}>
         {columns.length === 0 && (
-          <div className="entity-node__empty">No columns defined</div>
+          <div className={styles.empty}>No columns defined</div>
         )}
         {columns.map((column) => {
           const hasRelation = !!columnRelationsMap[column.name];
           const handleId = `${name}-${column.name}`;
 
           return (
-            <div key={column.name} className="entity-node__column">
+            <div key={column.name} className={styles.column}>
               {/* Connection handles for columns with relations */}
               {hasRelation && (
                 <>
@@ -91,23 +92,23 @@ export default function EntityNode({ data, selected }) {
                     type="source"
                     position={Position.Right}
                     id={`${handleId}-source`}
-                    className="column-handle column-handle--source"
+                    className={clsx(styles.columnHandle, styles.columnHandleSource)}
                   />
                   <Handle
                     type="target"
                     position={Position.Left}
                     id={`${handleId}-target`}
-                    className="column-handle column-handle--target"
+                    className={clsx(styles.columnHandle, styles.columnHandleTarget)}
                   />
                 </>
               )}
 
-              <div className="entity-node__column-header">
-                <span className="column-name">{column.name}</span>
-                <span className="column-type">{column.type}</span>
+              <div className={styles.columnHeader}>
+                <span className={styles.columnName}>{column.name}</span>
+                <span className={styles.columnType}>{column.type}</span>
               </div>
               {(column.primaryKey || column.unique || column.nullable || column.autoIncrement || column.generated) && (
-                <div className="entity-node__column-tags">
+                <div className={styles.columnTags}>
                   {renderColumnTag(column)}
                 </div>
               )}
@@ -118,35 +119,35 @@ export default function EntityNode({ data, selected }) {
 
       {/* Relations */}
       {relations.filter(rel => rel.fromEntity === name).length > 0 && (
-        <div className="entity-node__relations">
+        <div className={styles.relations}>
           <div
-            className="entity-node__relations-header"
+            className={styles.relationsHeader}
             onClick={() => setRelationsExpanded(!relationsExpanded)}
           >
-            <span className="entity-node__relations-title">
+            <span className={styles.relationsTitle}>
               Relations ({relations.filter(rel => rel.fromEntity === name).length})
             </span>
             {relationsExpanded ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
           </div>
           {relationsExpanded && (
-            <div className="entity-node__relations-content">
+            <div className={styles.relationsContent}>
               {relations.filter(rel => rel.fromEntity === name).map((rel, idx) => (
-                <div key={idx} className="entity-node__relation">
-                  <div className="relation-name">{rel.relationName}</div>
-                  <div className="relation-details">
-                    <span className="relation-target">{rel.toEntity}</span>
-                    <span className="relation-type">{rel.cardinality}</span>
+                <div key={idx} className={styles.relation}>
+                  <div className={styles.relationName}>{rel.relationName}</div>
+                  <div className={styles.relationDetails}>
+                    <span className={styles.relationTarget}>{rel.toEntity}</span>
+                    <span className={styles.relationType}>{rel.cardinality}</span>
                   </div>
                   {(rel.onDelete || rel.onUpdate || rel.cascade) && (
-                    <div className="relation-actions">
+                    <div className={styles.relationActions}>
                       {rel.onDelete && (
-                        <span className="relation-action">onDelete: {rel.onDelete}</span>
+                        <span className={styles.relationAction}>onDelete: {rel.onDelete}</span>
                       )}
                       {rel.onUpdate && (
-                        <span className="relation-action">onUpdate: {rel.onUpdate}</span>
+                        <span className={styles.relationAction}>onUpdate: {rel.onUpdate}</span>
                       )}
                       {rel.cascade && (
-                        <span className="relation-action">cascade: true</span>
+                        <span className={styles.relationAction}>cascade: true</span>
                       )}
                     </div>
                   )}
@@ -159,9 +160,9 @@ export default function EntityNode({ data, selected }) {
 
       {/* Indexes Footer */}
       {indexes.length > 0 && (
-        <div className="entity-node__footer">
-          <div className="entity-node__footer-title">Indexes</div>
-          <div className="entity-node__indexes">
+        <div className={styles.footer}>
+          <div className={styles.footerTitle}>Indexes</div>
+          <div className={styles.indexes}>
             {indexes.map((index, idx) => {
               const columnsStr = Array.isArray(index.columns)
                 ? index.columns.join(', ')
@@ -174,10 +175,10 @@ export default function EntityNode({ data, selected }) {
                   placement="top"
                   arrow
                 >
-                  <div className="entity-node__index">
-                    <span className="index-name">{index.name || `idx_${idx}`}</span>
+                  <div className={styles.index}>
+                    <span className={styles.indexName}>{index.name || `idx_${idx}`}</span>
                     {index.unique && (
-                      <span className="index-badge index-badge--unique">UNIQUE</span>
+                      <span className={clsx(styles.indexBadge, styles.indexBadgeUnique)}>UNIQUE</span>
                     )}
                   </div>
                 </Tooltip>

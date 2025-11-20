@@ -1,16 +1,21 @@
-.endpoint-detail {
+.endpointDetail {
   padding: 24px;
 
-  &__header {
+  .header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 16px;
     padding-bottom: 16px;
     border-bottom: 2px solid #e0e0e0;
+    position: sticky;
+    top: 0px;
+    background-color: #FFF;
+    padding-top: 17px;
+    z-index: 100;
   }
 
-  &__title {
+  .title {
     display: flex;
     align-items: center;
     gap: 16px;
@@ -23,7 +28,7 @@
     }
   }
 
-  &__summary {
+  .summary {
     font-size: 16px;
     color: #666;
     margin-bottom: 24px;
@@ -32,7 +37,7 @@
     border-radius: 4px;
   }
 
-  &__description {
+  .description {
     margin-bottom: 24px;
 
     h3 {
@@ -47,7 +52,7 @@
     }
   }
 
-  &__section {
+  .section {
     margin-bottom: 32px;
 
     h3 {
@@ -66,39 +71,39 @@
     font-weight: 700;
     min-width: 80px;
     text-align: center;
-
-    &--get {
-      background-color: #e3f2fd;
-      color: #1976d2;
-    }
-
-    &--post {
-      background-color: #e8f5e9;
-      color: #388e3c;
-    }
-
-    &--put {
-      background-color: #fff3e0;
-      color: #f57c00;
-    }
-
-    &--delete {
-      background-color: #ffebee;
-      color: #d32f2f;
-    }
-
-    &--patch {
-      background-color: #f3e5f5;
-      color: #7b1fa2;
-    }
-
-    &--default {
-      background-color: #f5f5f5;
-      color: #666;
-    }
   }
 
-  .deprecated-badge {
+  .methodGet {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+
+  .methodPost {
+    background-color: #e8f5e9;
+    color: #388e3c;
+  }
+
+  .methodPut {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
+
+  .methodDelete {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+
+  .methodPatch {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+  }
+
+  .methodDefault {
+    background-color: #f5f5f5;
+    color: #666;
+  }
+
+  .deprecatedBadge {
     padding: 6px 12px;
     background-color: #ff9800;
     color: white;
@@ -107,8 +112,8 @@
     border-radius: 4px;
   }
 
-  .params-table,
-  .schema-table {
+  .paramsTable,
+  .schemaTable {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
@@ -136,14 +141,14 @@
     }
   }
 
-  .enum-values {
+  .enumValues {
     font-size: 11px;
     color: #666;
     margin-top: 4px;
     font-style: italic;
   }
 
-  .response-section {
+  .responseSection {
     margin-bottom: 24px;
     padding: 16px;
     background-color: #f9f9f9;
@@ -154,7 +159,7 @@
     }
   }
 
-  .response-code {
+  .responseCode {
     font-size: 16px;
     margin: 0 0 16px 0;
     display: flex;
@@ -162,32 +167,32 @@
     gap: 12px;
   }
 
-  .status-badge {
+  .statusBadge {
     padding: 4px 10px;
     border-radius: 4px;
     font-size: 13px;
     font-weight: 700;
     font-family: 'Courier New', monospace;
+  }
 
-    &.status-2xx {
-      background-color: #e8f5e9;
-      color: #388e3c;
-    }
+  .status2xx {
+    background-color: #e8f5e9;
+    color: #388e3c;
+  }
 
-    &.status-3xx {
-      background-color: #e3f2fd;
-      color: #1976d2;
-    }
+  .status3xx {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
 
-    &.status-4xx {
-      background-color: #fff3e0;
-      color: #f57c00;
-    }
+  .status4xx {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
 
-    &.status-5xx {
-      background-color: #ffebee;
-      color: #d32f2f;
-    }
+  .status5xx {
+    background-color: #ffebee;
+    color: #d32f2f;
   }
 
   .badge {
@@ -198,19 +203,19 @@
     font-weight: 600;
     background-color: #e0e0e0;
     color: #666;
-
-    &--required {
-      background-color: #ffebee;
-      color: #d32f2f;
-    }
-
-    &--optional {
-      background-color: #f5f5f5;
-      color: #999;
-    }
   }
 
-  .schema-code {
+  .badgeRequired {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+
+  .badgeOptional {
+    background-color: #f5f5f5;
+    color: #999;
+  }
+
+  .schemaCode {
     background-color: #1e1e1e;
     color: #d4d4d4;
     padding: 16px;
@@ -226,35 +231,35 @@
     }
   }
 
-  .no-schema {
+  .noSchema {
     color: #999;
     font-style: italic;
     padding: 16px;
     text-align: center;
   }
 
-  .test-form {
+  .testForm {
     background-color: #f9f9f9;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     padding: 20px;
+  }
 
-    &__note {
-      color: #666;
-      margin-bottom: 16px;
-      font-style: italic;
-    }
+  .testFormNote {
+    color: #666;
+    margin-bottom: 16px;
+    font-style: italic;
+  }
 
-    &__example {
-      h4 {
-        font-size: 14px;
-        margin-bottom: 8px;
-        color: #333;
-      }
+  .testFormExample {
+    h4 {
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #333;
     }
   }
 
-  .curl-example {
+  .curlExample {
     background-color: #2d2d2d;
     color: #f8f8f2;
     padding: 16px;

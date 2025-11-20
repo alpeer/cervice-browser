@@ -1,14 +1,15 @@
 'use client';
 
+import clsx from 'clsx';
 import Collapsible from '@/ui/Collapsible/Collapsible';
 import { groupByTags, getMethodColor } from './helpers/groupByTags';
-import './EndpointsList.scss';
+import styles from './EndpointsList.module.scss';
 
 export default function EndpointsList({ spec }) {
   if (!spec?.paths) {
     return (
-      <div className="endpoints-list">
-        <p className="endpoints-list__empty">No endpoints found</p>
+      <div className={styles.endpointsList}>
+        <p className={styles.empty}>No endpoints found</p>
       </div>
     );
   }
@@ -17,9 +18,9 @@ export default function EndpointsList({ spec }) {
   const tags = Object.keys(grouped).sort();
 
   return (
-    <div className="endpoints-list">
+    <div className={styles.endpointsList}>
       <h2>API Endpoints</h2>
-      <p className="endpoints-list__info">
+      <p className={styles.info}>
         Total: {tags.length} tags, {
           Object.values(grouped).reduce((sum, endpoints) => sum + endpoints.length, 0)
         } endpoints
@@ -27,23 +28,23 @@ export default function EndpointsList({ spec }) {
 
       {tags.map((tag) => (
         <Collapsible key={tag} title={`${tag} (${grouped[tag].length})`}>
-          <ul className="endpoints-list__items">
+          <ul className={styles.items}>
             {grouped[tag].map((endpoint, idx) => (
               <li
                 key={idx}
-                className={`endpoint-item ${endpoint.deprecated ? 'endpoint-item--deprecated' : ''}`}
+                className={clsx(styles.endpointItem, endpoint.deprecated && styles.endpointItemDeprecated)}
               >
-                <div className="endpoint-item__main">
-                  <span className={`method method--${getMethodColor(endpoint.method)}`}>
+                <div className={styles.endpointItemMain}>
+                  <span className={clsx(styles.method, styles[`method${getMethodColor(endpoint.method).charAt(0).toUpperCase() + getMethodColor(endpoint.method).slice(1)}`])}>
                     {endpoint.method}
                   </span>
-                  <span className="path">{endpoint.path}</span>
+                  <span className={styles.path}>{endpoint.path}</span>
                 </div>
                 {endpoint.summary && (
-                  <p className="summary">{endpoint.summary}</p>
+                  <p className={styles.summary}>{endpoint.summary}</p>
                 )}
                 {endpoint.deprecated && (
-                  <span className="deprecated-badge">DEPRECATED</span>
+                  <span className={styles.deprecatedBadge}>DEPRECATED</span>
                 )}
               </li>
             ))}
