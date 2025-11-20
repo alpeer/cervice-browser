@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CircularProgress } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@/ui/Button/Button';
 import { useSpecState } from '@/hooks/useSpecState';
 import { parseUploadedSpec } from './helpers/parseSpec';

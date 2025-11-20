@@ -1,8 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { List, ListItemButton, ListItemText, Collapse } from '@mui/material';
-import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import Collapse from '@mui/material/Collapse';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
 import { useSpecState } from '@/hooks/useSpecState';
 import { getSchemas, getPaths, getWebhooks, getDomainModels } from '@/utils/specUtils';
 import './Sidebar.scss';

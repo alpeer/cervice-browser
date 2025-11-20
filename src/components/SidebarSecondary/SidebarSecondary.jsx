@@ -1,6 +1,7 @@
 'use client';
 
-import { List, ListItemButton } from '@mui/material';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
 import { useSpecState } from '@/hooks/useSpecState';
 import { getMethodColor } from '@/components/EndpointsList/helpers/groupByTags';
 import './SidebarSecondary.scss';

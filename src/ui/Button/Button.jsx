@@ -1,6 +1,6 @@
 'use client';
 
-import { Button as MuiButton } from '@mui/material';
+import Button as MuiButton from '@mui/material/Button';
 import './Button.scss';
 
 export default function Button({

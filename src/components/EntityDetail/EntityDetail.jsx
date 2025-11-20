@@ -10,8 +10,9 @@ import {
   useEdgesState,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Button } from '@mui/material';
-import { Upload, Delete } from '@mui/icons-material';
+import Button from '@mui/material/Button';
+import Upload from '@mui/icons-material/Upload';
+import Delete from '@mui/icons-material/Delete';
 import { useSpecState } from '@/hooks/useSpecState';
 import { parseEntities, entitiesToNodes, relationsToEdges } from '@/utils/entityParser';
 import EntityNode from '@/components/EntityNode/EntityNode';

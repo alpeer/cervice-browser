@@ -1,6 +1,7 @@
 'use client';
 
-import { Tabs as MuiTabs, Tab } from '@mui/material';
+import Tabs as MuiTabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import './Tabs.scss';
 
 export default function Tabs({ value, onChange, tabs }) {

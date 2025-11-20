@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Snackbar, Alert } from '@mui/material';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import { useSpecState } from '@/hooks/useSpecState';
 import './ToastContainer.scss';
 

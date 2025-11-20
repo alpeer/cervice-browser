@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { IconButton } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import './Collapsible.scss';
 

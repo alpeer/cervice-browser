@@ -1,6 +1,6 @@
 'use client';
 
-import { TextField } from '@mui/material';
+import TextField from '@mui/material/TextField';
 import './Input.scss';
 
 export default function Input({

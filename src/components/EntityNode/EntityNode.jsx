@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Tooltip, IconButton } from '@mui/material';
-import { ExpandMore, ExpandLess } from '@mui/icons-material';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import ExpandLess from '@mui/icons-material/ExpandLess';
 import './EntityNode.scss';
 
 /**
