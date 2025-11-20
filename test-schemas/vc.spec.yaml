@@ -1,0 +1,1576 @@
+openapi: 3.1.0
+info:
+  title: Verifiable Credentials & DID API
+  version: 1.0.0
+  description: |
+    A comprehensive API for managing Decentralized Identifiers (DIDs) and Verifiable Credentials (VCs) 
+    compliant with W3C standards. This API enables creation, verification, revocation, and management 
+    of digital identities and credentials.
+
+    ## Key Features
+    - DID creation and management (did:key, did:web, did:ion methods)
+    - Verifiable Credential issuance and verification
+    - Credential status management and revocation
+    - Presentation exchange protocol support
+    - Webhook notifications for real-time events
+
+  contact:
+    name: API Support
+    email: support@example.com
+    url: https://api.example.com/support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://api.example.com/terms
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+  - url: https://sandbox.api.example.com/v1
+    description: Sandbox server for testing
+
+tags:
+  - name: DIDs
+    description: Decentralized Identifier operations
+  - name: Verifiable Credentials
+    description: Operations for issuing and managing verifiable credentials
+  - name: Presentations
+    description: Verifiable presentation creation and verification
+  - name: Revocations
+    description: Credential revocation and status management
+  - name: Schemas
+    description: Credential schema management
+  - name: Webhooks
+    description: Webhook subscription management
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+
+paths:
+  /dids:
+    post:
+      tags:
+        - DIDs
+      summary: Create a new DID
+      description: Creates a new Decentralized Identifier using the specified method
+      operationId: createDID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDIDRequest"
+            examples:
+              didKey:
+                summary: Create did:key
+                value:
+                  method: "key"
+                  keyType: "Ed25519"
+              didWeb:
+                summary: Create did:web
+                value:
+                  method: "web"
+                  domain: "example.com"
+                  keyType: "secp256k1"
+      responses:
+        "201":
+          description: DID created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DIDDocument"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+    get:
+      tags:
+        - DIDs
+      summary: List DIDs
+      description: Retrieves a paginated list of DIDs owned by the authenticated user
+      operationId: listDIDs
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - name: method
+          in: query
+          description: Filter by DID method
+          schema:
+            type: string
+            enum: [key, web, ion, ethr]
+      responses:
+        "200":
+          description: List of DIDs retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dids:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DIDSummary"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /dids/{did}:
+    get:
+      tags:
+        - DIDs
+      summary: Resolve a DID
+      description: Resolves a DID to its DID Document
+      operationId: resolveDID
+      parameters:
+        - name: did
+          in: path
+          required: true
+          description: The DID to resolve
+          schema:
+            type: string
+            pattern: "^did:[a-z0-9]+:[a-zA-Z0-9._-]+"
+          example: "did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH"
+      responses:
+        "200":
+          description: DID resolved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DIDDocument"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      tags:
+        - DIDs
+      summary: Deactivate a DID
+      description: Deactivates a DID (soft delete)
+      operationId: deactivateDID
+      parameters:
+        - name: did
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: DID deactivated successfully
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /credentials:
+    post:
+      tags:
+        - Verifiable Credentials
+      summary: Issue a verifiable credential
+      description: Issues a new verifiable credential signed by the issuer's DID
+      operationId: issueCredential
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IssueCredentialRequest"
+            examples:
+              degreeCredential:
+                summary: University degree credential
+                value:
+                  issuerDid: "did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH"
+                  subjectDid: "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK"
+                  schemaId: "https://example.com/schemas/degree-v1.json"
+                  credentialSubject:
+                    degree:
+                      type: "BachelorDegree"
+                      name: "Bachelor of Science in Computer Science"
+                    university: "Example University"
+                    graduationDate: "2024-05-15"
+                  expirationDate: "2034-05-15T00:00:00Z"
+      responses:
+        "201":
+          description: Credential issued successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifiableCredential"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+    get:
+      tags:
+        - Verifiable Credentials
+      summary: List credentials
+      description: Retrieves a paginated list of issued credentials
+      operationId: listCredentials
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+        - name: issuerDid
+          in: query
+          description: Filter by issuer DID
+          schema:
+            type: string
+        - name: subjectDid
+          in: query
+          description: Filter by subject DID
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by credential status
+          schema:
+            type: string
+            enum: [active, revoked, expired, suspended]
+      responses:
+        "200":
+          description: List of credentials retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  credentials:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CredentialSummary"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /credentials/{credentialId}:
+    get:
+      tags:
+        - Verifiable Credentials
+      summary: Get credential by ID
+      description: Retrieves a specific verifiable credential
+      operationId: getCredential
+      parameters:
+        - name: credentialId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Credential retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifiableCredential"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /credentials/verify:
+    post:
+      tags:
+        - Verifiable Credentials
+      summary: Verify a credential
+      description: Verifies the cryptographic signature and validity of a verifiable credential
+      operationId: verifyCredential
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyCredentialRequest"
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /presentations:
+    post:
+      tags:
+        - Presentations
+      summary: Create a verifiable presentation
+      description: Creates a verifiable presentation containing one or more credentials
+      operationId: createPresentation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePresentationRequest"
+      responses:
+        "201":
+          description: Presentation created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifiablePresentation"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /presentations/verify:
+    post:
+      tags:
+        - Presentations
+      summary: Verify a presentation
+      description: Verifies a verifiable presentation and its contained credentials
+      operationId: verifyPresentation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyPresentationRequest"
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PresentationVerificationResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /revocations:
+    post:
+      tags:
+        - Revocations
+      summary: Revoke a credential
+      description: Revokes a previously issued credential
+      operationId: revokeCredential
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RevokeCredentialRequest"
+      responses:
+        "200":
+          description: Credential revoked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  credentialId:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum: [revoked]
+                  revokedAt:
+                    type: string
+                    format: date-time
+                  reason:
+                    type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /revocations/status/{credentialId}:
+    get:
+      tags:
+        - Revocations
+      summary: Check credential status
+      description: Checks the revocation status of a credential
+      operationId: checkCredentialStatus
+      parameters:
+        - name: credentialId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CredentialStatus"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /schemas:
+    post:
+      tags:
+        - Schemas
+      summary: Register a credential schema
+      description: Registers a new JSON Schema for credential validation
+      operationId: registerSchema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterSchemaRequest"
+      responses:
+        "201":
+          description: Schema registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CredentialSchema"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+    get:
+      tags:
+        - Schemas
+      summary: List schemas
+      description: Retrieves a list of registered credential schemas
+      operationId: listSchemas
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          description: List of schemas retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  schemas:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SchemaSummary"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+
+  /schemas/{schemaId}:
+    get:
+      tags:
+        - Schemas
+      summary: Get schema by ID
+      description: Retrieves a specific credential schema
+      operationId: getSchema
+      parameters:
+        - name: schemaId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Schema retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CredentialSchema"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /webhooks:
+    post:
+      tags:
+        - Webhooks
+      summary: Create webhook subscription
+      description: Creates a new webhook subscription for receiving event notifications
+      operationId: createWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWebhookRequest"
+      responses:
+        "201":
+          description: Webhook created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Webhook"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+    get:
+      tags:
+        - Webhooks
+      summary: List webhooks
+      description: Retrieves a list of webhook subscriptions
+      operationId: listWebhooks
+      responses:
+        "200":
+          description: List of webhooks retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  webhooks:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Webhook"
+
+  /webhooks/{webhookId}:
+    get:
+      tags:
+        - Webhooks
+      summary: Get webhook by ID
+      description: Retrieves a specific webhook subscription
+      operationId: getWebhook
+      parameters:
+        - name: webhookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Webhook retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Webhook"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    patch:
+      tags:
+        - Webhooks
+      summary: Update webhook
+      description: Updates an existing webhook subscription
+      operationId: updateWebhook
+      parameters:
+        - name: webhookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateWebhookRequest"
+      responses:
+        "200":
+          description: Webhook updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Webhook"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      tags:
+        - Webhooks
+      summary: Delete webhook
+      description: Deletes a webhook subscription
+      operationId: deleteWebhook
+      parameters:
+        - name: webhookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Webhook deleted successfully
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+# Webhooks - New in OpenAPI 3.1.0
+webhooks:
+  credentialIssued:
+    post:
+      tags:
+        - Webhooks
+      summary: Credential issued event
+      description: Triggered when a new credential is issued
+      operationId: onCredentialIssued
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CredentialIssuedEvent"
+      responses:
+        "200":
+          description: Webhook received successfully
+        "400":
+          description: Invalid webhook payload
+        "500":
+          description: Internal server error processing webhook
+
+  credentialRevoked:
+    post:
+      tags:
+        - Webhooks
+      summary: Credential revoked event
+      description: Triggered when a credential is revoked
+      operationId: onCredentialRevoked
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CredentialRevokedEvent"
+      responses:
+        "200":
+          description: Webhook received successfully
+
+  credentialVerified:
+    post:
+      tags:
+        - Webhooks
+      summary: Credential verified event
+      description: Triggered when a credential verification is performed
+      operationId: onCredentialVerified
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CredentialVerifiedEvent"
+      responses:
+        "200":
+          description: Webhook received successfully
+
+  presentationCreated:
+    post:
+      tags:
+        - Webhooks
+      summary: Presentation created event
+      description: Triggered when a new presentation is created
+      operationId: onPresentationCreated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PresentationCreatedEvent"
+      responses:
+        "200":
+          description: Webhook received successfully
+
+  didCreated:
+    post:
+      tags:
+        - Webhooks
+      summary: DID created event
+      description: Triggered when a new DID is created
+      operationId: onDIDCreated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DIDCreatedEvent"
+      responses:
+        "200":
+          description: Webhook received successfully
+
+  didDeactivated:
+    post:
+      tags:
+        - Webhooks
+      summary: DID deactivated event
+      description: Triggered when a DID is deactivated
+      operationId: onDIDDeactivated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DIDDeactivatedEvent"
+      responses:
+        "200":
+          description: Webhook received successfully
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from authentication endpoint
+
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for service-to-service authentication
+
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      description: Page number for pagination
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  schemas:
+    # DID Schemas
+    CreateDIDRequest:
+      type: object
+      required:
+        - method
+        - keyType
+      properties:
+        method:
+          type: string
+          enum: [key, web, ion, ethr]
+          description: DID method to use
+        keyType:
+          type: string
+          enum: [Ed25519, secp256k1, P-256, RSA]
+          description: Cryptographic key type
+        domain:
+          type: string
+          description: Domain name (required for did:web)
+        options:
+          type: object
+          description: Method-specific options
+          additionalProperties: true
+
+    DIDDocument:
+      type: object
+      required:
+        - id
+        - "@context"
+        - verificationMethod
+      properties:
+        "@context":
+          type: array
+          items:
+            type: string
+          example:
+            - "https://www.w3.org/ns/did/v1"
+            - "https://w3id.org/security/suites/ed25519-2020/v1"
+        id:
+          type: string
+          description: The DID
+          example: "did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH"
+        controller:
+          type: string
+          description: The controller of the DID
+        verificationMethod:
+          type: array
+          items:
+            $ref: "#/components/schemas/VerificationMethod"
+        authentication:
+          type: array
+          items:
+            type: string
+        assertionMethod:
+          type: array
+          items:
+            type: string
+        keyAgreement:
+          type: array
+          items:
+            type: string
+        capabilityInvocation:
+          type: array
+          items:
+            type: string
+        capabilityDelegation:
+          type: array
+          items:
+            type: string
+        service:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceEndpoint"
+
+    VerificationMethod:
+      type: object
+      required:
+        - id
+        - type
+        - controller
+      properties:
+        id:
+          type: string
+          example: "did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH#z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH"
+        type:
+          type: string
+          example: "Ed25519VerificationKey2020"
+        controller:
+          type: string
+          example: "did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH"
+        publicKeyMultibase:
+          type: string
+          description: Public key in multibase format
+        publicKeyJwk:
+          type: object
+          description: Public key in JWK format
+          additionalProperties: true
+
+    ServiceEndpoint:
+      type: object
+      required:
+        - id
+        - type
+        - serviceEndpoint
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        serviceEndpoint:
+          oneOf:
+            - type: string
+            - type: object
+
+    DIDSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        method:
+          type: string
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [active, deactivated]
+
+    # Verifiable Credential Schemas
+    IssueCredentialRequest:
+      type: object
+      required:
+        - issuerDid
+        - subjectDid
+        - credentialSubject
+      properties:
+        issuerDid:
+          type: string
+          description: DID of the credential issuer
+        subjectDid:
+          type: string
+          description: DID of the credential subject
+        schemaId:
+          type: string
+          description: URI of the credential schema
+        credentialSubject:
+          type: object
+          description: Claims about the subject
+          additionalProperties: true
+        expirationDate:
+          type: string
+          format: date-time
+          description: Expiration date of the credential
+        issuanceDate:
+          type: string
+          format: date-time
+          description: Issuance date (defaults to current time)
+        credentialStatus:
+          type: object
+          description: Status information for revocation
+          properties:
+            type:
+              type: string
+              example: "RevocationList2020Status"
+            revocationListIndex:
+              type: string
+            revocationListCredential:
+              type: string
+
+    VerifiableCredential:
+      type: object
+      required:
+        - "@context"
+        - type
+        - issuer
+        - issuanceDate
+        - credentialSubject
+        - proof
+      properties:
+        "@context":
+          type: array
+          items:
+            type: string
+          example:
+            - "https://www.w3.org/2018/credentials/v1"
+            - "https://www.w3.org/2018/credentials/examples/v1"
+        id:
+          type: string
+          format: uri
+          description: Unique identifier for the credential
+        type:
+          type: array
+          items:
+            type: string
+          example: ["VerifiableCredential", "UniversityDegreeCredential"]
+        issuer:
+          oneOf:
+            - type: string
+            - type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+        issuanceDate:
+          type: string
+          format: date-time
+        expirationDate:
+          type: string
+          format: date-time
+        credentialSubject:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              description: DID of the subject
+          additionalProperties: true
+        credentialStatus:
+          type: object
+          properties:
+            id:
+              type: string
+            type:
+              type: string
+            revocationListIndex:
+              type: string
+            revocationListCredential:
+              type: string
+        proof:
+          $ref: "#/components/schemas/Proof"
+
+    Proof:
+      type: object
+      required:
+        - type
+        - created
+        - verificationMethod
+        - proofPurpose
+      properties:
+        type:
+          type: string
+          example: "Ed25519Signature2020"
+        created:
+          type: string
+          format: date-time
+        verificationMethod:
+          type: string
+          description: Reference to the verification method used
+        proofPurpose:
+          type: string
+          example: "assertionMethod"
+        proofValue:
+          type: string
+          description: Base64-encoded signature
+        jws:
+          type: string
+          description: Detached JWS signature
+
+    CredentialSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: array
+          items:
+            type: string
+        issuer:
+          type: string
+        subject:
+          type: string
+        issuanceDate:
+          type: string
+          format: date-time
+        expirationDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [active, revoked, expired, suspended]
+
+    VerifyCredentialRequest:
+      type: object
+      required:
+        - credential
+      properties:
+        credential:
+          $ref: "#/components/schemas/VerifiableCredential"
+        options:
+          type: object
+          properties:
+            checkStatus:
+              type: boolean
+              default: true
+              description: Check revocation status
+            checkExpiration:
+              type: boolean
+              default: true
+              description: Check expiration date
+
+    VerificationResult:
+      type: object
+      properties:
+        verified:
+          type: boolean
+        checks:
+          type: array
+          items:
+            type: object
+            properties:
+              check:
+                type: string
+                enum: [proof, status, expiration, schema]
+              passed:
+                type: boolean
+              message:
+                type: string
+        errors:
+          type: array
+          items:
+            type: string
+        warnings:
+          type: array
+          items:
+            type: string
+
+    # Presentation Schemas
+    CreatePresentationRequest:
+      type: object
+      required:
+        - holderDid
+        - verifiableCredential
+      properties:
+        holderDid:
+          type: string
+          description: DID of the presentation holder
+        verifiableCredential:
+          type: array
+          items:
+            $ref: "#/components/schemas/VerifiableCredential"
+          description: Credentials to include in the presentation
+        challenge:
+          type: string
+          description: Challenge string for proof of possession
+        domain:
+          type: string
+          description: Domain for which the presentation is valid
+
+    VerifiablePresentation:
+      type: object
+      required:
+        - "@context"
+        - type
+        - holder
+        - verifiableCredential
+        - proof
+      properties:
+        "@context":
+          type: array
+          items:
+            type: string
+        id:
+          type: string
+        type:
+          type: array
+          items:
+            type: string
+          example: ["VerifiablePresentation"]
+        holder:
+          type: string
+          description: DID of the presentation holder
+        verifiableCredential:
+          type: array
+          items:
+            $ref: "#/components/schemas/VerifiableCredential"
+        proof:
+          $ref: "#/components/schemas/Proof"
+
+    VerifyPresentationRequest:
+      type: object
+      required:
+        - presentation
+      properties:
+        presentation:
+          $ref: "#/components/schemas/VerifiablePresentation"
+        challenge:
+          type: string
+          description: Expected challenge value
+        domain:
+          type: string
+          description: Expected domain value
+
+    PresentationVerificationResult:
+      type: object
+      properties:
+        verified:
+          type: boolean
+        presentationChecks:
+          type: object
+          properties:
+            proofVerified:
+              type: boolean
+            holderBinding:
+              type: boolean
+            challengeMatch:
+              type: boolean
+            domainMatch:
+              type: boolean
+        credentialVerifications:
+          type: array
+          items:
+            type: object
+            properties:
+              credentialId:
+                type: string
+              verified:
+                type: boolean
+              checks:
+                type: array
+                items:
+                  type: object
+        errors:
+          type: array
+          items:
+            type: string
+
+    # Revocation Schemas
+    RevokeCredentialRequest:
+      type: object
+      required:
+        - credentialId
+      properties:
+        credentialId:
+          type: string
+          format: uuid
+          description: ID of the credential to revoke
+        reason:
+          type: string
+          description: Reason for revocation
+
+    CredentialStatus:
+      type: object
+      properties:
+        credentialId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [active, revoked, suspended, expired]
+        statusDate:
+          type: string
+          format: date-time
+        reason:
+          type: string
+
+    # Schema Management
+    RegisterSchemaRequest:
+      type: object
+      required:
+        - name
+        - schema
+      properties:
+        name:
+          type: string
+          description: Human-readable name for the schema
+        description:
+          type: string
+        schema:
+          type: object
+          description: JSON Schema definition
+          additionalProperties: true
+
+    CredentialSchema:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uri
+        name:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+        schema:
+          type: object
+          additionalProperties: true
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+
+    SchemaSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        version:
+          type: string
+        created:
+          type: string
+          format: date-time
+
+    # Webhook Schemas
+    CreateWebhookRequest:
+      type: object
+      required:
+        - url
+        - events
+      properties:
+        url:
+          type: string
+          format: uri
+          description: URL to receive webhook notifications
+        events:
+          type: array
+          items:
+            type: string
+            enum:
+              - credential.issued
+              - credential.revoked
+              - credential.verified
+              - presentation.created
+              - did.created
+              - did.deactivated
+          description: Events to subscribe to
+        secret:
+          type: string
+          description: Secret for webhook signature verification
+        active:
+          type: boolean
+          default: true
+        metadata:
+          type: object
+          additionalProperties: true
+
+    Webhook:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+        active:
+          type: boolean
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        lastTriggered:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          additionalProperties: true
+
+    UpdateWebhookRequest:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+        active:
+          type: boolean
+        secret:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+
+    # Webhook Event Schemas
+    WebhookEventBase:
+      type: object
+      required:
+        - id
+        - type
+        - timestamp
+        - data
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique event ID
+        type:
+          type: string
+          description: Event type
+        timestamp:
+          type: string
+          format: date-time
+        apiVersion:
+          type: string
+          example: "v1"
+
+    CredentialIssuedEvent:
+      allOf:
+        - $ref: "#/components/schemas/WebhookEventBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [credential.issued]
+            data:
+              type: object
+              properties:
+                credentialId:
+                  type: string
+                  format: uuid
+                issuer:
+                  type: string
+                subject:
+                  type: string
+                credentialType:
+                  type: array
+                  items:
+                    type: string
+                issuanceDate:
+                  type: string
+                  format: date-time
+
+    CredentialRevokedEvent:
+      allOf:
+        - $ref: "#/components/schemas/WebhookEventBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [credential.revoked]
+            data:
+              type: object
+              properties:
+                credentialId:
+                  type: string
+                  format: uuid
+                revokedAt:
+                  type: string
+                  format: date-time
+                reason:
+                  type: string
+
+    CredentialVerifiedEvent:
+      allOf:
+        - $ref: "#/components/schemas/WebhookEventBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [credential.verified]
+            data:
+              type: object
+              properties:
+                credentialId:
+                  type: string
+                  format: uuid
+                verified:
+                  type: boolean
+                verifiedAt:
+                  type: string
+                  format: date-time
+                verifier:
+                  type: string
+
+    PresentationCreatedEvent:
+      allOf:
+        - $ref: "#/components/schemas/WebhookEventBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [presentation.created]
+            data:
+              type: object
+              properties:
+                presentationId:
+                  type: string
+                  format: uuid
+                holder:
+                  type: string
+                credentialCount:
+                  type: integer
+                createdAt:
+                  type: string
+                  format: date-time
+
+    DIDCreatedEvent:
+      allOf:
+        - $ref: "#/components/schemas/WebhookEventBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [did.created]
+            data:
+              type: object
+              properties:
+                did:
+                  type: string
+                method:
+                  type: string
+                createdAt:
+                  type: string
+                  format: date-time
+
+    DIDDeactivatedEvent:
+      allOf:
+        - $ref: "#/components/schemas/WebhookEventBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [did.deactivated]
+            data:
+              type: object
+              properties:
+                did:
+                  type: string
+                deactivatedAt:
+                  type: string
+                  format: date-time
+
+    # Common Schemas
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+        totalItems:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrevious:
+          type: boolean
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
+
+    ValidationError:
+      type: object
+      required:
+        - code
+        - message
+        - errors
+      properties:
+        code:
+          type: string
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          example: "Request validation failed"
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+              code:
+                type: string
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: "BAD_REQUEST"
+            message: "The request is malformed or contains invalid parameters"
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: "UNAUTHORIZED"
+            message: "Authentication credentials are missing or invalid"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: "NOT_FOUND"
+            message: "The requested resource was not found"
+
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ValidationError"
