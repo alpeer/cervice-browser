@@ -1,0 +1,21 @@
+.toast-container {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 9999;
+  pointer-events: none;
+
+  .MuiSnackbar-root {
+    pointer-events: auto;
+  }
+
+  .MuiAlert-root {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .MuiAlert-message {
+    padding: 0;
+  }
+}

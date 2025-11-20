@@ -3,6 +3,7 @@
 import { useSpecState } from '@/hooks/useSpecState';
 import SidebarPrimary from '@/components/SidebarPrimary/SidebarPrimary';
 import SidebarSecondary from '@/components/SidebarSecondary/SidebarSecondary';
+import ToastContainer from '@/components/ToastContainer/ToastContainer';
 import './AppLayout.scss';
 
 export default function AppLayout({ children, showSidebars = false }) {
@@ -18,6 +19,7 @@ export default function AppLayout({ children, showSidebars = false }) {
       <main className="content">
         {children}
       </main>
+      <ToastContainer />
     </div>
   );
 }

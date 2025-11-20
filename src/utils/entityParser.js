@@ -3,6 +3,8 @@
  * Supports both JSON and JS module exports (TypeORM EntitySchema format)
  */
 
+import { validateEntity, formatValidationErrors } from './entityValidator.js';
+
 /**
  * Extract EntitySchema from JS module content
  * @param {string} jsContent - JS file content
@@ -266,11 +268,12 @@ export function parseEntitySchema(schema, fileName) {
  * @param {Array} files - Array of {name, content} objects
  * @returns {Object} Parsed entities and relationships
  */
-export function parseEntities(files) {
+export async function parseEntities(files) {
   const entities = {};
   const allRelations = [];
+  const validationErrors = [];
 
-  files.forEach(({ name, content }) => {
+  for (const { name, content } of files) {
     try {
       let schema;
 
@@ -279,21 +282,40 @@ export function parseEntities(files) {
         // Try to extract EntitySchema from JS module
         schema = extractEntitySchemaFromJS(content);
         if (!schema) {
-          console.warn(`Could not extract EntitySchema from ${name}`);
-          return;
+          validationErrors.push({
+            fileName: name,
+            error: 'Could not extract EntitySchema from file',
+          });
+          continue;
         }
       } else {
         // Parse as JSON
         schema = typeof content === 'string' ? JSON.parse(content) : content;
       }
 
+      // Validate schema before parsing
+      const validation = await validateEntity(schema);
+
+      if (!validation.valid) {
+        const errorMessage = formatValidationErrors(validation.errors);
+        validationErrors.push({
+          fileName: name,
+          error: `Schema validation failed: ${errorMessage}`,
+          errors: validation.errors,
+        });
+        continue; // Skip this entity
+      }
+
       const entity = parseEntitySchema(schema, name);
       entities[entity.name] = entity;
       allRelations.push(...entity.relations);
     } catch (error) {
-      console.error(`Failed to parse entity ${name}:`, error);
+      validationErrors.push({
+        fileName: name,
+        error: error.message || 'Failed to parse entity',
+      });
     }
-  });
+  }
 
   // Analyze and enhance relations
   const enhancedRelations = analyzeRelations(allRelations, entities);
@@ -301,6 +323,7 @@ export function parseEntities(files) {
   return {
     entities,
     relations: enhancedRelations,
+    validationErrors,
   };
 }
 

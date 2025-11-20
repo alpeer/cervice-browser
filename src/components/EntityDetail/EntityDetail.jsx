@@ -28,6 +28,7 @@ export default function EntityDetail() {
     focusedEntity,
     setEntities,
     clearEntities,
+    addToast,
   } = useSpecState();
 
   const reactFlowInstance = useRef(null);
@@ -92,9 +93,24 @@ export default function EntityDetail() {
       });
     }
 
-    // Parse all entities
-    const { entities: newEntities, relations: newRelations } = parseEntities(parsedFiles);
-    setEntities(newEntities, newRelations);
+    // Parse all entities with validation
+    const { entities: newEntities, relations: newRelations, validationErrors } = await parseEntities(parsedFiles);
+
+    // Show validation errors as toasts
+    if (validationErrors && validationErrors.length > 0) {
+      validationErrors.forEach(({ fileName, error }) => {
+        addToast(`${fileName}: ${error}`, 'error', 8000);
+      });
+    }
+
+    // Show success toast if entities were loaded
+    const loadedCount = Object.keys(newEntities).length;
+    if (loadedCount > 0) {
+      addToast(`Successfully loaded ${loadedCount} entity schema${loadedCount > 1 ? 's' : ''}`, 'success', 4000);
+      setEntities(newEntities, newRelations);
+    } else if (validationErrors.length === 0) {
+      addToast('No valid entity schemas found in uploaded files', 'warning', 5000);
+    }
 
     // Reset file input
     if (fileInputRef.current) {

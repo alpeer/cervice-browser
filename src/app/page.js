@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSpecState } from '@/hooks/useSpecState';
 import SpecUploader from '@/components/SpecUploader/SpecUploader';
+import ToastContainer from '@/components/ToastContainer/ToastContainer';
 import Button from '@/ui/Button/Button';
 import './page.scss';
 
@@ -35,6 +36,7 @@ export default function Home() {
           </Button>
         </div>
       </main>
+      <ToastContainer />
     </div>
   );
 }

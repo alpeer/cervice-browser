@@ -107,4 +107,22 @@ export const useSpecState = create((set) => ({
         secondary: { title: null, subtitle: null, items: [] },
       },
     })),
+
+  // Toast notification management
+  toasts: [],
+
+  addToast: (message, severity = 'info', duration = 5000) =>
+    set((state) => {
+      const id = Date.now() + Math.random();
+      const toast = { id, message, severity, duration };
+      return { toasts: [...state.toasts, toast] };
+    }),
+
+  removeToast: (id) =>
+    set((state) => ({
+      toasts: state.toasts.filter((toast) => toast.id !== id),
+    })),
+
+  clearToasts: () =>
+    set({ toasts: [] }),
 }));
